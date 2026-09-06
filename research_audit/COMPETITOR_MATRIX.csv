@@ -1,0 +1,11 @@
+System,Intervention_Unit,Counterfactual_Replay,Provenance_Based,Channel_Level,Multi_Agent,Multimodal,Cascade_Analysis,Prevention,Cost_Aware,Benchmark_Size,Code_Available,Statistical_Method,Direct_Comparison_Feasible
+CELA,Evidence channel,YES,YES,YES,NO,ARCHITECTURE_ONLY,YES,YES,YES,Synthetic 6 families,YES,Bootstrap CI + Wilcoxon + Holm-Bonferroni,N/A
+Who&When,Benchmark only,N/A,N/A,N/A,YES,YES,N/A,N/A,N/A,"12326 traces, 26 benchmarks",YES,N/A,YES (as benchmark)
+AgentRx,Step (constraint),NO,NO,NO,YES,UNCLEAR,NO,NO,NO,">100 trajectories",YES,N/A,PARTIAL
+CHIEF,Agent/task hierarchy,YES,PARTIAL,PARTIAL,YES,UNCLEAR,YES,UNCLEAR,UNCLEAR,UNCLEAR,LIKELY,UNCLEAR,PARTIAL
+DoVer,State/plan,YES (active),NO,NO,YES,UNCLEAR,NO,UNCLEAR,UNCLEAR,UNCLEAR,LIKELY,UNCLEAR,PARTIAL
+CausalFlow,Step,YES,NO,NO,YES,UNCLEAR,NO,YES (repair),NO,UNCLEAR,LIKELY,UNCLEAR,YES (key comparison)
+CAR,Step (state-action),YES,NO,NO,YES,UNCLEAR,NO,UNCLEAR,NO,UNCLEAR,YES,Monte-Carlo Shapley,YES (primary competitor)
+AgenticRAG-FP,Benchmark only,YES (fault injection),NO,N/A,YES,NO,YES (propagation),N/A,N/A,Multi-hop RAG,YES,Signal loss metrics,YES (as benchmark)
+AgenTracer,Learned model,YES (training),NO,NO,YES,UNCLEAR,NO,UNCLEAR,NO,TracerTraj dataset,LIKELY,RL-based,PARTIAL
+AGENTSCOPE,Symbolic/static,NO,NO,NO,YES,UNCLEAR,NO,UNCLEAR,NO,UNCLEAR,LIKELY,N/A,NO

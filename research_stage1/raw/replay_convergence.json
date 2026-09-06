@@ -1,0 +1,52 @@
+[
+  {
+    "experiment": "replay_convergence",
+    "seed": 42,
+    "n_trials": 1,
+    "cee": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "ci_width": 0.0,
+    "num_valid_trials": 1
+  },
+  {
+    "experiment": "replay_convergence",
+    "seed": 42,
+    "n_trials": 3,
+    "cee": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "ci_width": 0.0,
+    "num_valid_trials": 3
+  },
+  {
+    "experiment": "replay_convergence",
+    "seed": 42,
+    "n_trials": 5,
+    "cee": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "ci_width": 0.0,
+    "num_valid_trials": 5
+  },
+  {
+    "experiment": "replay_convergence",
+    "seed": 42,
+    "n_trials": 10,
+    "cee": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "ci_width": 0.0,
+    "num_valid_trials": 10
+  },
+  {
+    "experiment": "replay_convergence",
+    "seed": 42,
+    "n_trials": 25,
+    "cee": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "ci_width": 0.0,
+    "num_valid_trials": 25
+  }
+]

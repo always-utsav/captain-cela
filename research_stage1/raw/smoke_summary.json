@@ -1,0 +1,892 @@
+{
+  "shared_source": [
+    {
+      "experiment": "shared_source",
+      "method": "channel_level",
+      "seed": 42,
+      "candidate_id": "cintv_1eb21819c7cfa16069a1981b8de1c00b",
+      "candidate_label": "irrelevant",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.4259,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "step_level",
+      "seed": 42,
+      "candidate_id": "cintv_1eb21819c7cfa16069a1981b8de1c00b",
+      "candidate_label": "irrelevant",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.2973,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "channel_level",
+      "seed": 42,
+      "candidate_id": "cintv_f3b75cff5208281fb05898f474cb8fe5",
+      "candidate_label": "causal",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.2957,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "step_level",
+      "seed": 42,
+      "candidate_id": "cintv_f3b75cff5208281fb05898f474cb8fe5",
+      "candidate_label": "causal",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.2565,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "channel_level",
+      "seed": 1,
+      "candidate_id": "cintv_5b04f5e677c9544f269e2fe0498febdd",
+      "candidate_label": "causal",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.2763,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "step_level",
+      "seed": 1,
+      "candidate_id": "cintv_5b04f5e677c9544f269e2fe0498febdd",
+      "candidate_label": "causal",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.2967,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "channel_level",
+      "seed": 1,
+      "candidate_id": "cintv_963b55a83e1d9adac72fe70d83ec4cf3",
+      "candidate_label": "irrelevant",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.4776,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "step_level",
+      "seed": 1,
+      "candidate_id": "cintv_963b55a83e1d9adac72fe70d83ec4cf3",
+      "candidate_label": "irrelevant",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.3029,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "channel_level",
+      "seed": 7,
+      "candidate_id": "cintv_bb98270290be8b3ac0daa0117d96a14d",
+      "candidate_label": "irrelevant",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.3182,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "step_level",
+      "seed": 7,
+      "candidate_id": "cintv_bb98270290be8b3ac0daa0117d96a14d",
+      "candidate_label": "irrelevant",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.2731,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "channel_level",
+      "seed": 7,
+      "candidate_id": "cintv_983effeb2028e9b53a2e678ba8114486",
+      "candidate_label": "causal",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.2408,
+      "error": null
+    },
+    {
+      "experiment": "shared_source",
+      "method": "step_level",
+      "seed": 7,
+      "candidate_id": "cintv_983effeb2028e9b53a2e678ba8114486",
+      "candidate_label": "causal",
+      "cee": 0.0,
+      "prevented": false,
+      "runtime_ms": 0.2606,
+      "error": null
+    }
+  ],
+  "negative_controls": [
+    {
+      "experiment": "negative_control",
+      "seed": 42,
+      "candidate_id": "cintv_3b5b22c7099dc8f5c1681749bdb0d9c3",
+      "expected_cee": 0.0,
+      "actual_cee": 0.0,
+      "false_positive": false,
+      "error": null
+    },
+    {
+      "experiment": "negative_control",
+      "seed": 42,
+      "candidate_id": "cintv_11414e0a90ab4569b11e4ae48a66e801",
+      "expected_cee": 0.0,
+      "actual_cee": 0.0,
+      "false_positive": false,
+      "error": null
+    },
+    {
+      "experiment": "negative_control",
+      "seed": 1,
+      "candidate_id": "cintv_ec68b823d035b9b0e79a91736a408c88",
+      "expected_cee": 0.0,
+      "actual_cee": 0.0,
+      "false_positive": false,
+      "error": null
+    },
+    {
+      "experiment": "negative_control",
+      "seed": 1,
+      "candidate_id": "cintv_0967905a6ed79f4c5d2bb2f41347ba09",
+      "expected_cee": 0.0,
+      "actual_cee": 0.0,
+      "false_positive": false,
+      "error": null
+    },
+    {
+      "experiment": "negative_control",
+      "seed": 7,
+      "candidate_id": "cintv_9c41b7d8be4041705c1ce298f3267c5d",
+      "expected_cee": 0.0,
+      "actual_cee": 0.0,
+      "false_positive": false,
+      "error": null
+    },
+    {
+      "experiment": "negative_control",
+      "seed": 7,
+      "candidate_id": "cintv_802e9ddf290da3e0d3202c0c0977352f",
+      "expected_cee": 0.0,
+      "actual_cee": 0.0,
+      "false_positive": false,
+      "error": null
+    }
+  ],
+  "replay_convergence": [
+    {
+      "experiment": "replay_convergence",
+      "seed": 42,
+      "n_trials": 1,
+      "cee": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "ci_width": 0.0,
+      "num_valid_trials": 1
+    },
+    {
+      "experiment": "replay_convergence",
+      "seed": 42,
+      "n_trials": 3,
+      "cee": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "ci_width": 0.0,
+      "num_valid_trials": 3
+    },
+    {
+      "experiment": "replay_convergence",
+      "seed": 42,
+      "n_trials": 5,
+      "cee": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "ci_width": 0.0,
+      "num_valid_trials": 5
+    },
+    {
+      "experiment": "replay_convergence",
+      "seed": 42,
+      "n_trials": 10,
+      "cee": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "ci_width": 0.0,
+      "num_valid_trials": 10
+    },
+    {
+      "experiment": "replay_convergence",
+      "seed": 42,
+      "n_trials": 25,
+      "cee": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "ci_width": 0.0,
+      "num_valid_trials": 25
+    }
+  ],
+  "seed_robustness": [
+    {
+      "experiment": "seed_robustness",
+      "seed": 1,
+      "family": "BF-A",
+      "candidate_id": "cintv_5b04f5e677c9544f269e2fe0498febdd",
+      "cee": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "num_valid_trials": 5
+    },
+    {
+      "experiment": "seed_robustness",
+      "seed": 2,
+      "family": "BF-A",
+      "candidate_id": "cintv_af73fbc6e659f365b8c8089013893069",
+      "cee": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "num_valid_trials": 5
+    },
+    {
+      "experiment": "seed_robustness",
+      "seed": 3,
+      "family": "BF-A",
+      "candidate_id": "cintv_d13e67c59d4a449322419fc9ed977a64",
+      "cee": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "num_valid_trials": 5
+    },
+    {
+      "experiment": "seed_robustness",
+      "seed": 42,
+      "family": "BF-A",
+      "candidate_id": "cintv_f3b75cff5208281fb05898f474cb8fe5",
+      "cee": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "num_valid_trials": 5
+    },
+    {
+      "experiment": "seed_robustness",
+      "seed": 100,
+      "family": "BF-A",
+      "candidate_id": "cintv_a8c52f58932c52f3533fda511a02f4ae",
+      "cee": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "num_valid_trials": 5
+    }
+  ],
+  "benchmark_smoke": [
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-A",
+      "method": "B1_random",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-A",
+      "method": "B2_provenance",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-A",
+      "method": "B4_structural",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-B",
+      "method": "B1_random",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-B",
+      "method": "B2_provenance",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-B",
+      "method": "B4_structural",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-C",
+      "method": "B1_random",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-C",
+      "method": "B2_provenance",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-C",
+      "method": "B4_structural",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-D",
+      "method": "B1_random",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-D",
+      "method": "B2_provenance",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-D",
+      "method": "B4_structural",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-E",
+      "method": "B1_random",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-E",
+      "method": "B2_provenance",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-E",
+      "method": "B4_structural",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-F",
+      "method": "B1_random",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-F",
+      "method": "B2_provenance",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 42,
+      "family": "BF-F",
+      "method": "B4_structural",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-A",
+      "method": "B1_random",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-A",
+      "method": "B2_provenance",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-A",
+      "method": "B4_structural",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-B",
+      "method": "B1_random",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-B",
+      "method": "B2_provenance",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-B",
+      "method": "B4_structural",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-C",
+      "method": "B1_random",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-C",
+      "method": "B2_provenance",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-C",
+      "method": "B4_structural",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-D",
+      "method": "B1_random",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-D",
+      "method": "B2_provenance",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-D",
+      "method": "B4_structural",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-E",
+      "method": "B1_random",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-E",
+      "method": "B2_provenance",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-E",
+      "method": "B4_structural",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-F",
+      "method": "B1_random",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-F",
+      "method": "B2_provenance",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 1,
+      "family": "BF-F",
+      "method": "B4_structural",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-A",
+      "method": "B1_random",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-A",
+      "method": "B2_provenance",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-A",
+      "method": "B4_structural",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-B",
+      "method": "B1_random",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-B",
+      "method": "B2_provenance",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-B",
+      "method": "B4_structural",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-C",
+      "method": "B1_random",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-C",
+      "method": "B2_provenance",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-C",
+      "method": "B4_structural",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-D",
+      "method": "B1_random",
+      "f1": 0.0,
+      "recall_at_1": 0.0,
+      "precision": 0.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-D",
+      "method": "B2_provenance",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-D",
+      "method": "B4_structural",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-E",
+      "method": "B1_random",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-E",
+      "method": "B2_provenance",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-E",
+      "method": "B4_structural",
+      "f1": 1.0,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-F",
+      "method": "B1_random",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-F",
+      "method": "B2_provenance",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    },
+    {
+      "experiment": "benchmark_smoke",
+      "seed": 7,
+      "family": "BF-F",
+      "method": "B4_structural",
+      "f1": 0.6666666666666666,
+      "recall_at_1": 1.0,
+      "precision": 1.0,
+      "prevention_rate": 0.0,
+      "error": null
+    }
+  ]
+}

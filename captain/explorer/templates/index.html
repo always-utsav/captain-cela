@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAPTAIN — Research Analysis Console</title>
+<script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
+<style>
+:root {
+  --bg: #0a0e17;
+  --surface: #111827;
+  --surface2: #1f2937;
+  --surface3: #283548;
+  --border: #374151;
+  --border2: #4b5563;
+  --text: #f3f4f6;
+  --text2: #d1d5db;
+  --text3: #9ca3af;
+  --text4: #6b7280;
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --accent-dim: rgba(59,130,246,0.12);
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,0.12);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.12);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --purple: #8b5cf6;
+  --purple-dim: rgba(139,92,246,0.12);
+  --cyan: #06b6d4;
+  --cyan-dim: rgba(6,182,212,0.12);
+  --radius: 8px;
+  --radius-sm: 4px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.4);
+  --nav-w: 220px;
+  --detail-w: 380px;
+  --font: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body { font-family:var(--font); background:var(--bg); color:var(--text); font-size:13px; line-height:1.5; display:flex; overflow:hidden; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--border2); }
+
+/* ===== NAV SIDEBAR ===== */
+.nav { width:var(--nav-w); background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
+.nav-brand { padding:20px 16px 16px; border-bottom:1px solid var(--border); }
+.nav-brand h1 { font-size:16px; font-weight:700; letter-spacing:1.5px; color:var(--accent2); }
+.nav-brand .sub { font-size:10px; color:var(--text4); letter-spacing:0.5px; margin-top:2px; text-transform:uppercase; }
+.nav-sections { flex:1; overflow-y:auto; padding:8px 0; }
+.nav-item { display:flex; align-items:center; gap:10px; padding:9px 16px; cursor:pointer; color:var(--text3); font-size:12px; font-weight:500; letter-spacing:0.3px; transition:all 0.15s; border-left:3px solid transparent; }
+.nav-item:hover { background:var(--surface2); color:var(--text2); }
+.nav-item.active { background:var(--accent-dim); color:var(--accent2); border-left-color:var(--accent); }
+.nav-item .icon { width:18px; text-align:center; font-size:14px; flex-shrink:0; }
+.nav-item .num { margin-left:auto; font-size:10px; background:var(--surface2); color:var(--text4); padding:1px 6px; border-radius:8px; }
+.nav-item.active .num { background:var(--accent-dim); color:var(--accent2); }
+.nav-sep { height:1px; background:var(--border); margin:8px 16px; }
+.nav-runs { border-top:1px solid var(--border); padding:8px; flex-shrink:0; }
+.nav-runs h3 { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text4); padding:4px 8px 6px; }
+.run-item { display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:var(--radius-sm); cursor:pointer; font-size:11px; color:var(--text3); transition:all 0.15s; }
+.run-item:hover { background:var(--surface2); color:var(--text2); }
+.run-item.active { background:var(--accent-dim); color:var(--accent2); }
+.run-item .dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.run-item .dot.completed { background:var(--green); }
+.run-item .dot.failed { background:var(--red); }
+.run-item .rid { font-family:var(--mono); font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.run-actions { display:flex; gap:4px; padding:8px 8px 4px; }
+
+/* ===== MAIN CONTENT ===== */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
+.topbar { display:flex; align-items:center; gap:12px; padding:10px 20px; border-bottom:1px solid var(--border); background:var(--surface); flex-shrink:0; }
+.topbar .section-title { font-size:14px; font-weight:600; }
+.topbar .run-badge { font-family:var(--mono); font-size:11px; color:var(--text4); background:var(--surface2); padding:3px 10px; border-radius:var(--radius-sm); }
+.topbar .spacer { flex:1; }
+.content { flex:1; overflow-y:auto; padding:20px; }
+
+/* ===== BUTTONS ===== */
+.btn { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border:none; border-radius:var(--radius-sm); font-size:12px; font-weight:500; cursor:pointer; transition:all 0.15s; font-family:var(--font); }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-primary:hover { background:#2563eb; }
+.btn-secondary { background:var(--surface2); color:var(--text2); border:1px solid var(--border); }
+.btn-secondary:hover { background:var(--surface3); }
+.btn-sm { padding:4px 10px; font-size:11px; }
+.btn-icon { padding:6px 8px; }
+.btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+/* ===== CARDS ===== */
+.cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:12px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+.card-label { font-size:10px; text-transform:uppercase; letter-spacing:0.8px; color:var(--text4); margin-bottom:6px; }
+.card-value { font-size:24px; font-weight:700; font-family:var(--mono); }
+.card-sub { font-size:11px; color:var(--text4); margin-top:4px; }
+.card.accent { border-color:var(--accent); }
+.card.accent .card-value { color:var(--accent2); }
+.card.green .card-value { color:var(--green); }
+.card.amber .card-value { color:var(--amber); }
+.card.purple .card-value { color:var(--purple); }
+
+/* ===== TABLES ===== */
+.tbl-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { text-align:left; padding:10px 12px; font-size:10px; text-transform:uppercase; letter-spacing:0.8px; color:var(--text4); background:var(--surface); border-bottom:1px solid var(--border); font-weight:600; white-space:nowrap; }
+td { padding:8px 12px; border-bottom:1px solid var(--border); color:var(--text2); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(255,255,255,0.02); }
+tr.clickable { cursor:pointer; }
+tr.clickable:hover td { background:var(--accent-dim); }
+tr.selected td { background:var(--accent-dim); }
+.mono { font-family:var(--mono); font-size:11px; }
+.truncate { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* ===== BADGES ===== */
+.badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:var(--radius-sm); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.badge-event { background:var(--green-dim); color:var(--green); }
+.badge-artifact { background:var(--amber-dim); color:var(--amber); }
+.badge-evidence { background:var(--purple-dim); color:var(--purple); }
+.badge-failure { background:var(--red-dim); color:var(--red); }
+.badge-info { background:var(--accent-dim); color:var(--accent2); }
+.badge-cyan { background:var(--cyan-dim); color:var(--cyan); }
+
+/* ===== SECTION LAYOUT ===== */
+.section-grid { display:grid; grid-template-columns:1fr var(--detail-w); gap:0; height:100%; }
+.section-grid.no-detail { grid-template-columns:1fr; }
+.section-main { overflow-y:auto; padding:20px; }
+.section-detail { border-left:1px solid var(--border); background:var(--surface); overflow-y:auto; padding:16px; }
+.section-detail h3 { font-size:12px; text-transform:uppercase; letter-spacing:0.8px; color:var(--text4); margin-bottom:12px; }
+
+/* ===== DETAIL FIELDS ===== */
+.field { margin-bottom:10px; }
+.field-label { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text4); margin-bottom:2px; }
+.field-value { font-size:13px; color:var(--text2); word-break:break-all; }
+.field-value.mono { font-family:var(--mono); font-size:11px; }
+.field-value pre { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px; font-family:var(--mono); font-size:11px; color:var(--text3); overflow-x:auto; white-space:pre-wrap; word-break:break-all; margin-top:2px; max-height:200px; overflow-y:auto; }
+
+/* ===== GRAPH ===== */
+.graph-wrap { position:relative; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.graph-canvas { width:100%; }
+.graph-controls { position:absolute; top:8px; right:8px; display:flex; gap:4px; z-index:10; }
+.graph-legend { position:absolute; bottom:8px; left:8px; display:flex; gap:12px; z-index:10; background:rgba(17,24,39,0.85); padding:6px 12px; border-radius:var(--radius-sm); font-size:10px; }
+.legend-item { display:flex; align-items:center; gap:4px; color:var(--text4); }
+.legend-dot { width:8px; height:8px; border-radius:50%; }
+
+/* ===== PIPELINE ===== */
+.pipeline { display:flex; align-items:center; gap:4px; flex-wrap:wrap; padding:16px 0; }
+.pipe-step { display:flex; align-items:center; gap:4px; padding:6px 12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:11px; color:var(--text3); white-space:nowrap; }
+.pipe-step.active { border-color:var(--accent); color:var(--accent2); background:var(--accent-dim); }
+.pipe-arrow { color:var(--text4); font-size:12px; }
+
+/* ===== STATES ===== */
+.empty-state { text-align:center; padding:40px 20px; color:var(--text4); }
+.empty-state .icon { font-size:32px; margin-bottom:12px; opacity:0.4; }
+.empty-state p { font-size:13px; margin-bottom:16px; }
+.loading { display:flex; align-items:center; justify-content:center; padding:40px; color:var(--text4); }
+.loading::after { content:''; width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.6s linear infinite; margin-left:10px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.error-msg { background:var(--red-dim); border:1px solid rgba(239,68,68,0.3); color:var(--red); padding:10px 14px; border-radius:var(--radius-sm); font-size:12px; }
+.success-msg { background:var(--green-dim); border:1px solid rgba(16,185,129,0.3); color:var(--green); padding:10px 14px; border-radius:var(--radius-sm); font-size:12px; }
+.info-box { background:var(--accent-dim); border:1px solid rgba(59,130,246,0.2); padding:12px 14px; border-radius:var(--radius-sm); font-size:12px; color:var(--text3); }
+
+/* ===== TABS ===== */
+.tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:16px; }
+.tab { padding:8px 16px; font-size:12px; font-weight:500; color:var(--text4); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; }
+.tab:hover { color:var(--text2); }
+.tab.active { color:var(--accent2); border-bottom-color:var(--accent); }
+
+/* ===== FORMULA ===== */
+.formula { font-family:var(--mono); font-size:13px; background:var(--surface2); border:1px solid var(--border); padding:12px 16px; border-radius:var(--radius-sm); color:var(--text2); text-align:center; margin:12px 0; }
+
+/* ===== INPUT ===== */
+.input-group { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.input-group label { font-size:11px; color:var(--text4); width:120px; flex-shrink:0; text-transform:uppercase; letter-spacing:0.5px; }
+.input-group input, .input-group select { background:var(--bg); border:1px solid var(--border); color:var(--text); padding:5px 10px; border-radius:var(--radius-sm); font-size:12px; font-family:var(--font); }
+.input-group input { width:140px; }
+
+/* ===== GAP/SPACING ===== */
+.mb-8 { margin-bottom:8px; }
+.mb-12 { margin-bottom:12px; }
+.mb-16 { margin-bottom:16px; }
+.mb-20 { margin-bottom:20px; }
+.mt-12 { margin-top:12px; }
+.mt-16 { margin-top:16px; }
+.gap-8 { gap:8px; }
+.flex { display:flex; }
+.flex-col { flex-direction:column; }
+.items-center { align-items:center; }
+.justify-between { justify-content:space-between; }
+.w-full { width:100%; }
+h2 { font-size:15px; font-weight:600; margin-bottom:12px; }
+h4 { font-size:12px; font-weight:600; color:var(--text3); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
+.subtitle { font-size:12px; color:var(--text4); margin-bottom:16px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1100px) {
+  .nav { width:56px; }
+  .nav-brand h1 { font-size:12px; }
+  .nav-brand .sub, .nav-item span:not(.icon), .nav-item .num { display:none; }
+  .nav-item { padding:10px 0; justify-content:center; }
+  .nav-runs { display:none; }
+  .run-actions { flex-direction:column; }
+  .section-grid { grid-template-columns:1fr; }
+  .section-detail { border-left:none; border-top:1px solid var(--border); max-height:40vh; }
+}
+@media (max-width: 768px) {
+  .cards { grid-template-columns:repeat(2, 1fr); }
+  .pipeline { flex-direction:column; align-items:flex-start; }
+}
+
+/* Hide sections */
+.section { display:none; }
+.section.active { display:flex; flex-direction:column; flex:1; overflow:hidden; }
+</style>
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="nav">
+  <div class="nav-brand">
+    <h1>CAPTAIN</h1>
+    <div class="sub">Research Analysis Console</div>
+  </div>
+  <div class="nav-sections">
+    <div class="nav-item active" data-section="overview" onclick="switchSection('overview')">
+      <span class="icon">◈</span><span>Overview</span>
+    </div>
+    <div class="nav-item" data-section="trace" onclick="switchSection('trace')">
+      <span class="icon">▤</span><span>Execution Trace</span>
+      <span class="num" id="nav-events">—</span>
+    </div>
+    <div class="nav-item" data-section="provenance" onclick="switchSection('provenance')">
+      <span class="icon">⊶</span><span>Provenance</span>
+    </div>
+    <div class="nav-item" data-section="evidence" onclick="switchSection('evidence')">
+      <span class="icon">◉</span><span>Evidence Flow</span>
+      <span class="num" id="nav-evidence">—</span>
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-item" data-section="failure" onclick="switchSection('failure')">
+      <span class="icon">⚠</span><span>Failure Analysis</span>
+    </div>
+    <div class="nav-item" data-section="counterfactual" onclick="switchSection('counterfactual')">
+      <span class="icon">⇋</span><span>Counterfactuals</span>
+    </div>
+    <div class="nav-item" data-section="cascade" onclick="switchSection('cascade')">
+      <span class="icon">⧫</span><span>Cascade Analysis</span>
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-item" data-section="experiments" onclick="switchSection('experiments')">
+      <span class="icon">⊞</span><span>Experiments</span>
+    </div>
+  </div>
+  <div class="nav-runs">
+    <h3>Runs</h3>
+    <div id="run-list"></div>
+    <div class="run-actions">
+      <button class="btn btn-primary btn-sm w-full" onclick="runDemo()">＋ Demo Run</button>
+      <button class="btn btn-secondary btn-sm w-full" onclick="loadRuns()">↻ Refresh</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <span class="section-title" id="topbar-title">Overview</span>
+  <span class="run-badge" id="topbar-run">No run selected</span>
+  <span class="spacer"></span>
+  <button class="btn btn-secondary btn-sm" id="btn-graph-fit" onclick="fitGraph()" style="display:none">⊡ Fit Graph</button>
+</div>
+
+<!-- ===== OVERVIEW SECTION ===== -->
+<div class="section active" id="sec-overview">
+  <div class="content">
+    <div id="overview-content">
+      <div class="empty-state">
+        <div class="icon">◈</div>
+        <p>Create or select a run to begin analysis.</p>
+        <button class="btn btn-primary" onclick="runDemo()">Create Demo Run</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TRACE SECTION ===== -->
+<div class="section" id="sec-trace">
+  <div class="section-grid" id="trace-grid">
+    <div class="section-main" id="trace-main">
+      <div class="empty-state"><div class="icon">▤</div><p>Select a run to view execution trace.</p></div>
+    </div>
+    <div class="section-detail" id="trace-detail">
+      <h3>Event Detail</h3>
+      <div class="empty-state"><p>Select an event from the table.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PROVENANCE SECTION ===== -->
+<div class="section" id="sec-provenance">
+  <div class="section-grid" id="prov-grid">
+    <div class="section-main" id="prov-main">
+      <div class="empty-state"><div class="icon">⊶</div><p>Select a run to explore provenance and artifact lineage.</p></div>
+    </div>
+    <div class="section-detail" id="prov-detail">
+      <h3>Artifact Detail</h3>
+      <div class="empty-state"><p>Select an artifact to inspect lineage.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== EVIDENCE SECTION ===== -->
+<div class="section" id="sec-evidence">
+  <div class="section-grid" id="evi-grid">
+    <div class="section-main" id="evi-main">
+      <div class="empty-state"><div class="icon">◉</div><p>Select a run to view evidence-flow graph.</p></div>
+    </div>
+    <div class="section-detail" id="evi-detail">
+      <h3>Evidence Detail</h3>
+      <div class="empty-state"><p>Select an evidence node.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FAILURE SECTION ===== -->
+<div class="section" id="sec-failure">
+  <div class="content" id="failure-content">
+    <div class="empty-state"><div class="icon">⚠</div><p>Select a run to analyze failures.<br>Or run a benchmark demo for benchmark-level failure analysis.</p>
+      <button class="btn btn-secondary btn-sm mt-12" onclick="runBenchmarkDemo()">Run Benchmark Demo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COUNTERFACTUAL SECTION ===== -->
+<div class="section" id="sec-counterfactual">
+  <div class="content" id="cf-content">
+    <div class="empty-state"><div class="icon">⇋</div><p>Run a benchmark demo to generate counterfactual analysis data.</p>
+      <button class="btn btn-secondary btn-sm mt-12" onclick="runBenchmarkDemo()">Run Benchmark Demo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CASCADE SECTION ===== -->
+<div class="section" id="sec-cascade">
+  <div class="content" id="cascade-content">
+    <div class="empty-state"><div class="icon">⧫</div><p>Run a benchmark demo to generate cascade analysis data.</p>
+      <button class="btn btn-secondary btn-sm mt-12" onclick="runBenchmarkDemo()">Run Benchmark Demo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== EXPERIMENTS SECTION ===== -->
+<div class="section" id="sec-experiments">
+  <div class="content" id="exp-content">
+    <h2>Experiment Configuration</h2>
+    <div class="subtitle">Configure and run a CELA benchmark experiment using the ExperimentRunner.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <div class="input-group"><label>Master Seed</label><input type="number" id="exp-seed" value="42"></div>
+        <div class="input-group"><label>Instances/Family</label><input type="number" id="exp-instances" value="3"></div>
+        <div class="input-group"><label>Families</label><input type="text" id="exp-families" value="BF-A,BF-B,BF-C" style="width:200px"></div>
+        <div class="input-group"><label>Methods</label><input type="text" id="exp-methods" value="B1,B2,A2,A4" style="width:200px"></div>
+        <div class="input-group"><label>Bootstrap N</label><input type="number" id="exp-bootstrap" value="200"></div>
+        <div class="mt-12 flex gap-8">
+          <button class="btn btn-primary" id="exp-run-btn" onclick="runExperiment()">Run Experiment</button>
+          <button class="btn btn-secondary" onclick="loadExperimentSummary()">Load Summary</button>
+          <button class="btn btn-secondary" onclick="exportExperiment()">Export JSON</button>
+        </div>
+      </div>
+      <div class="info-box">
+        <strong>Conservative defaults.</strong><br>
+        The default configuration runs 3 instances across 3 families with 4 methods (36 evaluations). Typical completion: &lt;2 seconds.<br><br>
+        Increase instances_per_family for more statistical power. All experiments use deterministic seeds.
+      </div>
+    </div>
+    <div id="exp-results" class="mt-16"></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+/* ================================================================
+   STATE
+   ================================================================ */
+let currentRunId = null;
+let currentRunData = null;
+let graphNetwork = null;
+let scenarioId = null;
+let benchmarkData = null;
+
+/* ================================================================
+   API HELPERS
+   ================================================================ */
+async function api(url, opts) {
+  try {
+    const r = await fetch(url, opts);
+    if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e.error || `HTTP ${r.status}`); }
+    return r.json();
+  } catch (e) { throw e; }
+}
+function postJSON(url, data) {
+  return api(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: data ? JSON.stringify(data) : undefined });
+}
+
+/* ================================================================
+   NAVIGATION
+   ================================================================ */
+const sectionTitles = {
+  overview:'Overview', trace:'Execution Trace', provenance:'Provenance',
+  evidence:'Evidence Flow', failure:'Failure Analysis', counterfactual:'Counterfactuals',
+  cascade:'Cascade Analysis', experiments:'Experiments'
+};
+let activeSection = 'overview';
+
+function switchSection(name) {
+  activeSection = name;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === name));
+  document.querySelectorAll('.section').forEach(el => el.classList.toggle('active', el.id === 'sec-'+name));
+  document.getElementById('topbar-title').textContent = sectionTitles[name] || name;
+  document.getElementById('btn-graph-fit').style.display = (name==='overview' && graphNetwork) ? '' : 'none';
+
+  // Lazy-load section data
+  if (currentRunId) {
+    if (name === 'trace' && !document.querySelector('#trace-main table')) loadTrace();
+    if (name === 'provenance' && !document.querySelector('#prov-main table')) loadProvenance();
+    if (name === 'evidence') loadEvidence();
+    if (name === 'failure') loadFailure();
+  }
+  if (name === 'counterfactual' && scenarioId) loadCounterfactual();
+  if (name === 'cascade' && scenarioId) loadCascade();
+}
+
+/* ================================================================
+   RUNS
+   ================================================================ */
+async function loadRuns() {
+  try {
+    const runs = await api('/api/runs');
+    const list = document.getElementById('run-list');
+    if (!runs.length) { list.innerHTML = '<div style="font-size:11px;color:var(--text4);padding:4px 8px;">No runs yet</div>'; return; }
+    list.innerHTML = runs.map(r => `
+      <div class="run-item ${r.run_id === currentRunId ? 'active' : ''}" onclick="selectRun('${r.run_id}')">
+        <span class="dot ${r.status}"></span>
+        <span class="rid">${r.run_id.substring(0,20)}…</span>
+      </div>
+    `).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function runDemo() {
+  try {
+    const data = await postJSON('/api/demo');
+    currentRunId = data.run_id;
+    await loadRuns();
+    await selectRun(data.run_id);
+  } catch(e) { alert('Demo failed: '+e.message); }
+}
+
+async function selectRun(runId) {
+  currentRunId = runId;
+  document.getElementById('topbar-run').textContent = runId.substring(0,24)+'…';
+  document.querySelectorAll('.run-item').forEach(el => {
+    el.classList.toggle('active', el.querySelector('.rid').textContent.startsWith(runId.substring(0,20)));
+  });
+  try {
+    currentRunData = await api('/api/run/'+runId);
+    document.getElementById('nav-events').textContent = currentRunData.events.length;
+    loadOverview();
+    // Reset lazy-loaded sections
+    resetSection('trace-main');
+    resetSection('prov-main');
+    if (activeSection === 'trace') loadTrace();
+    if (activeSection === 'provenance') loadProvenance();
+    if (activeSection === 'evidence') loadEvidence();
+    if (activeSection === 'failure') loadFailure();
+  } catch(e) { console.error(e); }
+}
+
+function resetSection(id) {
+  // Will be reloaded on next visit
+}
+
+/* ================================================================
+   OVERVIEW
+   ================================================================ */
+async function loadOverview() {
+  const c = document.getElementById('overview-content');
+  if (!currentRunData) return;
+  const r = currentRunData;
+  let evidenceCount = '—';
+  let transformCount = '—';
+  try {
+    const ev = await api('/api/evidence/'+currentRunId);
+    evidenceCount = ev.evidence.length;
+    transformCount = ev.transformations.length;
+    document.getElementById('nav-evidence').textContent = evidenceCount;
+  } catch(e) {}
+
+  c.innerHTML = `
+    <div class="cards mb-20">
+      <div class="card green"><div class="card-label">Events</div><div class="card-value">${r.event_count}</div><div class="card-sub">Execution events captured</div></div>
+      <div class="card amber"><div class="card-label">Artifacts</div><div class="card-value">${r.artifact_count}</div><div class="card-sub">Data artifacts produced</div></div>
+      <div class="card purple"><div class="card-label">Evidence</div><div class="card-value">${evidenceCount}</div><div class="card-sub">Evidence nodes extracted</div></div>
+      <div class="card accent"><div class="card-label">Channels</div><div class="card-value">${transformCount}</div><div class="card-sub">Evidence-flow transformations</div></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-12">
+      <h2 style="margin:0">Execution Graph</h2>
+      <div class="flex gap-8">
+        <button class="btn btn-secondary btn-sm" onclick="fitGraph()">⊡ Fit</button>
+        <button class="btn btn-secondary btn-sm" onclick="loadOverview()">↻ Reload</button>
+      </div>
+    </div>
+    <div class="graph-wrap mb-20">
+      <div id="graph-container" class="graph-canvas" style="height:420px;"></div>
+      <div class="graph-legend">
+        <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span> Event</div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--amber)"></span> Artifact</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span> Produced</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span> Consumed</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#ec4899"></span> Derived</div>
+      </div>
+    </div>
+
+    <h4>Pipeline</h4>
+    <div class="pipeline">
+      <div class="pipe-step active">Agent Execution</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step active">Trace Collection</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step active">Provenance</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step ${evidenceCount!=='—'?'active':''}">Evidence Flow</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step">Failure Analysis</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step">Counterfactual Replay</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step">CEE Estimation</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step">Cascade Intervention</div>
+    </div>
+
+    <div class="flex justify-between items-center mt-16 mb-12">
+      <h4 style="margin:0">Run Details</h4>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><td style="width:140px;color:var(--text4)">Run ID</td><td class="mono">${r.run_id}</td></tr>
+        <tr><td style="color:var(--text4)">Status</td><td><span class="badge badge-${r.status==='completed'?'event':'failure'}">${r.status}</span></td></tr>
+        <tr><td style="color:var(--text4)">Started</td><td>${new Date(r.started_at).toLocaleString()}</td></tr>
+        <tr><td style="color:var(--text4)">Task</td><td>${r.task_input || '—'}</td></tr>
+      </table>
+    </div>
+  `;
+
+  // Load graph
+  try {
+    const gd = await api('/api/graph/'+currentRunId);
+    renderGraph(gd.graph);
+  } catch(e) { console.error(e); }
+}
+
+/* ================================================================
+   GRAPH
+   ================================================================ */
+function renderGraph(graphData) {
+  const container = document.getElementById('graph-container');
+  if (!container) return;
+
+  const nodes = new vis.DataSet(graphData.nodes.map(n => ({
+    id: n.id, label: n.label, group: n.group, shape: n.shape,
+    title: n.id,
+    font: { color: '#d1d5db', size: 11, face: 'Inter, system-ui, sans-serif' },
+    _nodeType: n.node_type, _nodeId: n.node_id,
+  })));
+
+  const edgeColors = { produced:'#06b6d4', consumed:'#fbbf24', derived:'#ec4899' };
+  const edges = new vis.DataSet(graphData.edges.map(e => ({
+    id: e.id, from: e.from, to: e.to,
+    label: e.label, arrows: 'to',
+    color: { color: edgeColors[e.edge_type]||'#4b5563', highlight:'#f3f4f6' },
+    font: { color:'#6b7280', size:9, strokeWidth:0 },
+    smooth: { type:'cubicBezier', roundness:0.4 },
+  })));
+
+  const options = {
+    layout: { hierarchical: { enabled:true, direction:'LR', sortMethod:'directed', levelSeparation:180, nodeSpacing:70 }},
+    groups: {
+      event: { color:{ background:'#064e3b', border:'#10b981', highlight:{ background:'#10b981', border:'#10b981' }}, borderWidth:2, shape:'box' },
+      artifact: { color:{ background:'#451a03', border:'#f59e0b', highlight:{ background:'#f59e0b', border:'#f59e0b' }}, borderWidth:2, shape:'ellipse' },
+    },
+    physics: false,
+    interaction: { hover:true, tooltipDelay:100 },
+    edges: { width:1.5, selectionWidth:2 },
+  };
+
+  if (graphNetwork) graphNetwork.destroy();
+  graphNetwork = new vis.Network(container, { nodes, edges }, options);
+  graphNetwork.once('stabilized', () => graphNetwork.fit({ animation:{ duration:300 }}));
+  setTimeout(() => graphNetwork.fit(), 50);
+
+  graphNetwork.on('selectNode', params => {
+    if (!params.nodes.length) return;
+    const nd = nodes.get(params.nodes[0]);
+    if (nd._nodeType === 'event') showEventInOverview(nd._nodeId);
+    else showArtifactInOverview(nd._nodeId);
+  });
+}
+
+function fitGraph() { if (graphNetwork) graphNetwork.fit({ animation:{ duration:300 }}); }
+
+async function showEventInOverview(eventId) {
+  try {
+    const evt = await api(`/api/event/${currentRunId}/${eventId}`);
+    switchSection('trace');
+    renderEventDetail(evt, 'trace-detail');
+  } catch(e) {}
+}
+async function showArtifactInOverview(artifactId) {
+  try {
+    const art = await api(`/api/artifact/${currentRunId}/${artifactId}`);
+    switchSection('provenance');
+    renderArtifactDetail(art, 'prov-detail');
+  } catch(e) {}
+}
+
+/* ================================================================
+   TRACE
+   ================================================================ */
+function loadTrace() {
+  if (!currentRunData) return;
+  const main = document.getElementById('trace-main');
+  const events = currentRunData.events;
+  main.innerHTML = `
+    <h2>Execution Events</h2>
+    <div class="subtitle">${events.length} events in chronological order.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Type</th><th>Event ID</th><th>Component</th><th>Timestamp</th><th>Artifacts</th></tr></thead>
+        <tbody>${events.map(e => `
+          <tr class="clickable" onclick="loadEventDetail('${e.event_id}')">
+            <td>${e.sequence_number}</td>
+            <td><span class="badge badge-event">${e.event_type}</span></td>
+            <td class="mono truncate">${e.event_id}</td>
+            <td>${e.component || '—'}</td>
+            <td>${new Date(e.timestamp).toLocaleTimeString()}</td>
+            <td>${(e.input_artifact_ids.length + e.output_artifact_ids.length) || '—'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function loadEventDetail(eventId) {
+  try {
+    const evt = await api(`/api/event/${currentRunId}/${eventId}`);
+    renderEventDetail(evt, 'trace-detail');
+    document.querySelectorAll('#trace-main tr.clickable').forEach(tr => {
+      tr.classList.toggle('selected', tr.querySelector('.mono')?.textContent === eventId);
+    });
+  } catch(e) {}
+}
+
+function renderEventDetail(evt, targetId) {
+  document.getElementById(targetId).innerHTML = `
+    <h3>Event Detail</h3>
+    <div class="flex gap-8 mb-12">
+      <span class="badge badge-event">${evt.event_type}</span>
+      <span class="badge badge-info">#${evt.sequence_number}</span>
+    </div>
+    ${field('Event ID', evt.event_id, true)}
+    ${field('Timestamp', new Date(evt.timestamp).toLocaleString())}
+    ${field('Component', evt.component)}
+    ${field('Parent Event', evt.parent_event_id || 'None', true)}
+    ${evt.input_artifact_ids.length ? `<div class="field"><div class="field-label">Input Artifacts</div>${evt.input_artifact_ids.map(id=>`<div class="field-value mono" style="cursor:pointer;color:var(--amber)" onclick="loadArtifactDetail('${id}')">${id}</div>`).join('')}</div>` : ''}
+    ${evt.output_artifact_ids.length ? `<div class="field"><div class="field-label">Output Artifacts</div>${evt.output_artifact_ids.map(id=>`<div class="field-value mono" style="cursor:pointer;color:var(--amber)" onclick="loadArtifactDetail('${id}')">${id}</div>`).join('')}</div>` : ''}
+    ${Object.keys(evt.payload||{}).length ? `<div class="field"><div class="field-label">Payload</div><div class="field-value"><pre>${JSON.stringify(evt.payload,null,2)}</pre></div></div>` : ''}
+    ${Object.keys(evt.metadata||{}).length ? `<div class="field"><div class="field-label">Metadata</div><div class="field-value"><pre>${JSON.stringify(evt.metadata,null,2)}</pre></div></div>` : ''}
+  `;
+}
+
+/* ================================================================
+   PROVENANCE
+   ================================================================ */
+function loadProvenance() {
+  if (!currentRunData) return;
+  const main = document.getElementById('prov-main');
+  const arts = currentRunData.artifacts;
+  main.innerHTML = `
+    <h2>Artifacts &amp; Provenance</h2>
+    <div class="subtitle">${arts.length} artifacts. Select one to inspect lineage.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Artifact ID</th><th>Type</th><th>Producer Event</th><th>Has Value</th></tr></thead>
+        <tbody>${arts.map(a => `
+          <tr class="clickable" onclick="loadArtifactDetail('${a.artifact_id}')">
+            <td class="mono truncate">${a.artifact_id}</td>
+            <td><span class="badge badge-artifact">${a.artifact_type}</span></td>
+            <td class="mono truncate">${a.producer_event_id || '—'}</td>
+            <td>${a.has_value ? '✓' : '—'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function loadArtifactDetail(artifactId) {
+  try {
+    const art = await api(`/api/artifact/${currentRunId}/${artifactId}`);
+    renderArtifactDetail(art, 'prov-detail');
+    if (activeSection !== 'provenance') switchSection('provenance');
+  } catch(e) {}
+}
+
+function renderArtifactDetail(art, targetId) {
+  document.getElementById(targetId).innerHTML = `
+    <h3>Artifact Detail</h3>
+    <span class="badge badge-artifact mb-12">${art.artifact_type}</span>
+    ${field('Artifact ID', art.artifact_id, true)}
+    ${field('Created', new Date(art.created_at).toLocaleString())}
+    ${field('Producer', art.producer_event_id || 'None', true)}
+    ${art.value ? `<div class="field"><div class="field-label">Value</div><div class="field-value"><pre>${typeof art.value==='string'?art.value:JSON.stringify(art.value,null,2)}</pre></div></div>` : ''}
+    ${art.reference ? field('Reference', art.reference) : ''}
+    <h4 class="mt-16">Provenance Lineage</h4>
+    ${art.producer ? `<div class="field"><div class="field-label">Producer Event</div><div class="field-value mono" style="cursor:pointer;color:var(--green)" onclick="loadEventDetail('${art.producer}')">${art.producer}</div></div>` : ''}
+    ${art.consumers.length ? `<div class="field"><div class="field-label">Consumer Events (${art.consumers.length})</div>${art.consumers.map(c=>`<div class="field-value mono" style="cursor:pointer;color:var(--green)" onclick="loadEventDetail('${c}')">${c}</div>`).join('')}</div>` : '<div class="field"><div class="field-label">Consumers</div><div class="field-value" style="color:var(--text4)">None</div></div>'}
+    ${art.upstream.length ? `<div class="field"><div class="field-label">Upstream (${art.upstream.length})</div>${art.upstream.map(id=>`<div class="field-value mono" style="cursor:pointer;color:var(--amber)" onclick="loadArtifactDetail('${id}')">${id}</div>`).join('')}</div>` : ''}
+    ${art.downstream.length ? `<div class="field"><div class="field-label">Downstream (${art.downstream.length})</div>${art.downstream.map(id=>`<div class="field-value mono" style="cursor:pointer;color:var(--amber)" onclick="loadArtifactDetail('${id}')">${id}</div>`).join('')}</div>` : ''}
+  `;
+}
+
+/* ================================================================
+   EVIDENCE FLOW
+   ================================================================ */
+async function loadEvidence() {
+  if (!currentRunId) return;
+  const main = document.getElementById('evi-main');
+  main.innerHTML = '<div class="loading">Loading evidence</div>';
+  try {
+    const data = await api('/api/evidence/'+currentRunId);
+    main.innerHTML = `
+      <h2>Evidence Flow Graph</h2>
+      <div class="subtitle">${data.evidence.length} evidence nodes, ${data.transformations.length} transformations.</div>
+      <h4>Evidence Nodes</h4>
+      <div class="tbl-wrap mb-16">
+        <table>
+          <thead><tr><th>Evidence ID</th><th>Type</th><th>Artifact</th><th>Producer Event</th><th>Seq</th></tr></thead>
+          <tbody>${data.evidence.map(e => `
+            <tr class="clickable" onclick="showEvidenceDetail(${JSON.stringify(e).replace(/"/g,'&quot;')})">
+              <td class="mono truncate">${e.id}</td>
+              <td><span class="badge badge-evidence">${e.evidence_type}</span></td>
+              <td class="mono truncate">${e.artifact_id || '—'}</td>
+              <td class="mono truncate">${e.producer || '—'}</td>
+              <td>${e.sequence ?? '—'}</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      </div>
+      ${data.transformations.length ? `
+        <h4>Evidence-Flow Channels (Transformations)</h4>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Source</th><th>→</th><th>Target</th><th>Type</th><th>Provenance</th><th>Event</th></tr></thead>
+            <tbody>${data.transformations.map(t => `
+              <tr>
+                <td class="mono truncate">${t.source}</td>
+                <td style="color:var(--text4)">→</td>
+                <td class="mono truncate">${t.target}</td>
+                <td><span class="badge badge-cyan">${t.type}</span></td>
+                <td>${t.provenance || '—'}</td>
+                <td class="mono truncate">${t.event_id || '—'}</td>
+              </tr>
+            `).join('')}</tbody>
+          </table>
+        </div>
+      ` : ''}
+    `;
+  } catch(e) { main.innerHTML = `<div class="error-msg">Failed to load evidence: ${e.message}</div>`; }
+}
+
+function showEvidenceDetail(ev) {
+  document.getElementById('evi-detail').innerHTML = `
+    <h3>Evidence Detail</h3>
+    <span class="badge badge-evidence mb-12">${ev.evidence_type}</span>
+    ${field('Evidence ID', ev.id, true)}
+    ${field('Type', ev.evidence_type)}
+    ${field('Artifact ID', ev.artifact_id, true)}
+    ${field('Producer Event', ev.producer, true)}
+    ${field('Sequence', ev.sequence)}
+  `;
+}
+
+/* ================================================================
+   FAILURE ANALYSIS
+   ================================================================ */
+async function loadFailure() {
+  if (!currentRunId) return;
+  const c = document.getElementById('failure-content');
+  c.innerHTML = '<div class="loading">Analyzing failures</div>';
+  try {
+    const data = await api('/api/failure/'+currentRunId);
+    c.innerHTML = `
+      <h2>Failure Analysis</h2>
+      <div class="subtitle">Structural screening of candidate evidence-flow channels.</div>
+      <div class="cards mb-16">
+        <div class="card"><div class="card-label">Failure Type</div><div class="card-value" style="font-size:16px;color:var(--red)">${data.failure.failure_type}</div></div>
+        <div class="card"><div class="card-label">Candidates</div><div class="card-value">${data.candidates.length}</div><div class="card-sub">Channels identified</div></div>
+        <div class="card"><div class="card-label">Interventions</div><div class="card-value">${data.interventions.length}</div><div class="card-sub">Possible interventions</div></div>
+      </div>
+      <div class="info-box mb-16">${data.failure.description}</div>
+      ${data.candidates.length ? `
+        <h4>Candidate Evidence Channels</h4>
+        <div class="subtitle">Structural screening scores. These are NOT causal effect estimates (CEE).</div>
+        <div class="tbl-wrap mb-16">
+          <table>
+            <thead><tr><th>Candidate ID</th><th>Source Evidence</th><th>→</th><th>Target Evidence</th><th>Screening Score</th></tr></thead>
+            <tbody>${data.candidates.map(c => `
+              <tr>
+                <td class="mono truncate">${c.id}</td>
+                <td class="mono truncate">${c.source}</td>
+                <td style="color:var(--text4)">→</td>
+                <td class="mono truncate">${c.target}</td>
+                <td><strong>${typeof c.score==='number'?c.score.toFixed(2):c.score}</strong></td>
+              </tr>
+            `).join('')}</tbody>
+          </table>
+        </div>
+      ` : ''}
+      ${data.interventions.length ? `
+        <h4>Intervention Candidates</h4>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Intervention ID</th><th>Source</th><th>→</th><th>Target</th></tr></thead>
+            <tbody>${data.interventions.map(i => `
+              <tr>
+                <td class="mono truncate">${i.id}</td>
+                <td class="mono truncate">${i.source}</td>
+                <td style="color:var(--text4)">→</td>
+                <td class="mono truncate">${i.target}</td>
+              </tr>
+            `).join('')}</tbody>
+          </table>
+        </div>
+      ` : ''}
+    `;
+  } catch(e) { c.innerHTML = `<div class="error-msg">Failure analysis error: ${e.message}</div>`; }
+}
+
+/* ================================================================
+   BENCHMARK DEMO
+   ================================================================ */
+async function runBenchmarkDemo() {
+  const btns = document.querySelectorAll('.btn');
+  try {
+    benchmarkData = await postJSON('/api/demo/benchmark');
+    scenarioId = benchmarkData.scenario_id;
+    // Navigate to failure section with data
+    loadBenchmarkFailure();
+    switchSection('failure');
+  } catch(e) { alert('Benchmark failed: '+e.message); }
+}
+
+function loadBenchmarkFailure() {
+  if (!benchmarkData) return;
+  const c = document.getElementById('failure-content');
+  const d = benchmarkData;
+  c.innerHTML = `
+    <h2>Benchmark Failure Analysis</h2>
+    <div class="subtitle">Scenario: ${d.family} — ${d.candidates.length} candidate channels identified.</div>
+    <div class="cards mb-16">
+      <div class="card accent"><div class="card-label">Family</div><div class="card-value" style="font-size:18px">${d.family}</div></div>
+      <div class="card"><div class="card-label">Candidates</div><div class="card-value">${d.candidates.length}</div></div>
+      <div class="card"><div class="card-label">Methods Evaluated</div><div class="card-value">${d.method_results.length}</div></div>
+    </div>
+    <h4>Candidate Channels</h4>
+    <div class="tbl-wrap mb-16">
+      <table>
+        <thead><tr><th>ID</th><th>Source</th><th>→</th><th>Target</th><th>Type</th></tr></thead>
+        <tbody>${d.candidates.map(c=>`
+          <tr><td class="mono truncate">${c.id}</td><td class="mono truncate">${c.source}</td><td style="color:var(--text4)">→</td><td class="mono truncate">${c.target}</td><td><span class="badge badge-info">${c.type}</span></td></tr>
+        `).join('')}</tbody>
+      </table>
+    </div>
+    ${d.ground_truth ? `
+      <h4>Ground Truth <span class="badge badge-failure" style="margin-left:8px">POST-HOC EVALUATION ONLY</span></h4>
+      <div class="info-box mb-16">
+        <strong>This information is never available to methods during execution.</strong><br>
+        Causal channels: ${JSON.stringify(d.ground_truth.causal_channel_ids)}
+      </div>
+    ` : ''}
+    <h4>Method Results</h4>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Details</th></tr></thead>
+        <tbody>${d.method_results.map(m=>`
+          <tr><td><strong>${m.method}</strong></td><td class="mono" style="font-size:10px">${JSON.stringify(m.metrics).substring(0,120)}…</td></tr>
+        `).join('')}</tbody>
+      </table>
+    </div>
+    <div class="mt-16 flex gap-8">
+      <button class="btn btn-primary btn-sm" onclick="switchSection('counterfactual')">View Counterfactual →</button>
+      <button class="btn btn-secondary btn-sm" onclick="switchSection('cascade')">View Cascade →</button>
+    </div>
+  `;
+}
+
+/* ================================================================
+   COUNTERFACTUAL
+   ================================================================ */
+async function loadCounterfactual() {
+  if (!scenarioId) return;
+  const c = document.getElementById('cf-content');
+  c.innerHTML = '<div class="loading">Loading counterfactual data</div>';
+  try {
+    const data = await api('/api/counterfactual/'+scenarioId);
+    c.innerHTML = `
+      <h2>Counterfactual Analysis</h2>
+      <div class="subtitle">Factual vs. counterfactual comparison for scenario ${scenarioId.substring(0,16)}…</div>
+      <div class="formula">CEE(e) = P(Y=1) − P(Y=1 | do(C<sub>e</sub> = c<sub>cf</sub>))</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" class="mb-16">
+        <div class="card" style="border-color:var(--red)">
+          <div class="card-label" style="color:var(--red)">⬤ ${data.factual.label}</div>
+          <div style="font-size:14px;margin-top:8px;color:var(--text2)">${data.factual.description}</div>
+          <div class="mt-12"><span class="badge badge-failure">Failure = ${data.factual.failure}</span></div>
+        </div>
+        <div class="card" style="border-color:var(--accent)">
+          <div class="card-label" style="color:var(--accent2)">⬤ ${data.counterfactual.label}</div>
+          <div style="font-size:14px;margin-top:8px;color:var(--text2)">${data.counterfactual.description}</div>
+        </div>
+      </div>
+      ${data.counterfactual.method_results && data.counterfactual.method_results.length ? `
+        <h4>Method-Level Results</h4>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Method</th><th>Causal F1</th><th>CEE (Set)</th></tr></thead>
+            <tbody>${data.counterfactual.method_results.map(m=>`
+              <tr>
+                <td><strong>${m.method}</strong></td>
+                <td class="mono">${m.causal_f1 !== null && m.causal_f1 !== undefined ? m.causal_f1.toFixed(3) : '—'}</td>
+                <td class="mono">${m.cee_set !== null && m.cee_set !== undefined ? m.cee_set.toFixed(3) : '—'}</td>
+              </tr>
+            `).join('')}</tbody>
+          </table>
+        </div>
+      ` : ''}
+    `;
+  } catch(e) { c.innerHTML = `<div class="error-msg">Error: ${e.message}</div>`; }
+}
+
+/* ================================================================
+   CASCADE
+   ================================================================ */
+async function loadCascade() {
+  if (!scenarioId) return;
+  const c = document.getElementById('cascade-content');
+  c.innerHTML = '<div class="loading">Loading cascade data</div>';
+  try {
+    const data = await api('/api/cascade/'+scenarioId);
+    c.innerHTML = `
+      <h2>Cascade Analysis</h2>
+      <div class="subtitle">Joint intervention set evaluation for ${data.family}.</div>
+      <div class="info-box mb-16">Set-level effects come from joint intervention/replay, not from summing individual CEE values.</div>
+      ${data.method_cascade_results.length ? `
+        <h4>Method Cascade Results</h4>
+        <div class="tbl-wrap mb-16">
+          <table>
+            <thead><tr><th>Method</th><th>Set Size</th><th>Cost</th><th>Utility</th><th>Prevention Rate</th></tr></thead>
+            <tbody>${data.method_cascade_results.map(m=>`
+              <tr>
+                <td><strong>${m.method}</strong></td>
+                <td class="mono">${m.set_size}</td>
+                <td class="mono">${typeof m.cost==='number'?m.cost.toFixed(2):m.cost}</td>
+                <td class="mono">${typeof m.utility==='number'?m.utility.toFixed(3):m.utility}</td>
+                <td class="mono">${typeof m.prevention_rate==='number'?m.prevention_rate.toFixed(3):m.prevention_rate}</td>
+              </tr>
+            `).join('')}</tbody>
+          </table>
+        </div>
+      ` : '<div class="empty-state"><p>No cascade results available.</p></div>'}
+      ${data.oracle ? `
+        <h4>Oracle <span class="badge badge-failure" style="margin-left:8px">EVALUATION ONLY</span></h4>
+        <div class="info-box mb-12"><strong>Oracle information is used for evaluation only.</strong> It is never available to methods during selection.</div>
+        <div class="cards">
+          <div class="card"><div class="card-label">Optimal Objective</div><div class="card-value" style="font-size:16px">${typeof data.oracle.optimal_objective==='number'?data.oracle.optimal_objective.toFixed(3):data.oracle.optimal_objective}</div></div>
+          <div class="card"><div class="card-label">Sets Evaluated</div><div class="card-value" style="font-size:16px">${data.oracle.sets_evaluated}</div></div>
+        </div>
+      ` : ''}
+    `;
+  } catch(e) { c.innerHTML = `<div class="error-msg">Error: ${e.message}</div>`; }
+}
+
+/* ================================================================
+   EXPERIMENTS
+   ================================================================ */
+async function runExperiment() {
+  const btn = document.getElementById('exp-run-btn');
+  btn.disabled = true; btn.textContent = 'Running…';
+  const results = document.getElementById('exp-results');
+  results.innerHTML = '<div class="loading">Running experiment (this may take a few seconds)</div>';
+  try {
+    const config = {
+      master_seed: parseInt(document.getElementById('exp-seed').value),
+      instances_per_family: parseInt(document.getElementById('exp-instances').value),
+      families: document.getElementById('exp-families').value.split(',').map(s=>s.trim()),
+      methods: document.getElementById('exp-methods').value.split(',').map(s=>s.trim()),
+      bootstrap_resamples: parseInt(document.getElementById('exp-bootstrap').value),
+    };
+    const data = await postJSON('/api/experiment', config);
+    renderExperimentResults(data);
+  } catch(e) { results.innerHTML = `<div class="error-msg">Experiment failed: ${e.message}</div>`; }
+  btn.disabled = false; btn.textContent = 'Run Experiment';
+}
+
+async function loadExperimentSummary() {
+  const results = document.getElementById('exp-results');
+  results.innerHTML = '<div class="loading">Loading summary</div>';
+  try {
+    const data = await api('/api/experiment/summary');
+    if (data.message) { results.innerHTML = `<div class="info-box">${data.message}</div>`; return; }
+    results.innerHTML = `
+      <h4>Experiment Summary</h4>
+      <div class="cards mb-16">
+        <div class="card accent"><div class="card-label">Seed</div><div class="card-value" style="font-size:16px">${data.seed}</div></div>
+        <div class="card"><div class="card-label">Scenarios</div><div class="card-value" style="font-size:16px">${data.total_scenarios}</div></div>
+        <div class="card"><div class="card-label">Comparisons</div><div class="card-value" style="font-size:16px">${data.comparisons}</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Causal F1</th><th>CI Lower</th><th>CI Upper</th><th>Prevention</th><th>CEE(S)</th><th>Cost</th><th>N</th></tr></thead>
+          <tbody>${data.summary.map(r=>`
+            <tr>
+              <td><strong>${r.method}</strong></td>
+              <td class="mono">${r.causal_f1!==null?r.causal_f1.toFixed(3):'—'}</td>
+              <td class="mono">${r.ci_lower!==null?r.ci_lower.toFixed(3):'—'}</td>
+              <td class="mono">${r.ci_upper!==null?r.ci_upper.toFixed(3):'—'}</td>
+              <td class="mono">${r.prevention!==null?r.prevention.toFixed(3):'—'}</td>
+              <td class="mono">${r.cee_set!==null?r.cee_set.toFixed(3):'—'}</td>
+              <td class="mono">${r.cost!==null?r.cost.toFixed(2):'—'}</td>
+              <td>${r.n_scenarios}</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      </div>
+    `;
+  } catch(e) { results.innerHTML = `<div class="error-msg">Error: ${e.message}</div>`; }
+}
+
+function renderExperimentResults(data) {
+  const results = document.getElementById('exp-results');
+  if (!data.metadata) { results.innerHTML = '<div class="info-box">Experiment completed. Use "Load Summary" to view results.</div>'; return; }
+  const md = data.metadata;
+  results.innerHTML = `
+    <div class="success-msg mb-16">Experiment completed: ${md.total_scenarios} scenarios, ${md.total_method_evaluations} evaluations.</div>
+    <div class="cards mb-16">
+      <div class="card accent"><div class="card-label">Seed</div><div class="card-value" style="font-size:16px">${md.master_seed}</div></div>
+      <div class="card green"><div class="card-label">Scenarios</div><div class="card-value" style="font-size:16px">${md.total_scenarios}</div></div>
+      <div class="card"><div class="card-label">Evaluations</div><div class="card-value" style="font-size:16px">${md.total_method_evaluations}</div></div>
+      <div class="card"><div class="card-label">Comparisons</div><div class="card-value" style="font-size:16px">${data.comparisons?data.comparisons.length:'—'}</div></div>
+    </div>
+    <p style="font-size:12px;color:var(--text4)">Use "Load Summary" for formatted results table, or "Export JSON" to save full results.</p>
+  `;
+}
+
+async function exportExperiment() {
+  try {
+    const data = await postJSON('/api/experiment/export');
+    if (data.path) alert('Exported to: '+data.path);
+    else if (data.error) alert('Error: '+data.error);
+    else alert(JSON.stringify(data));
+  } catch(e) { alert('Export failed: '+e.message); }
+}
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+function field(label, value, mono=false) {
+  return `<div class="field"><div class="field-label">${label}</div><div class="field-value ${mono?'mono':''}">${value ?? '—'}</div></div>`;
+}
+
+/* ================================================================
+   INIT
+   ================================================================ */
+loadRuns();
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+[
+  {
+    "experiment": "negative_control",
+    "seed": 42,
+    "candidate_id": "cintv_3b5b22c7099dc8f5c1681749bdb0d9c3",
+    "expected_cee": 0.0,
+    "actual_cee": 0.0,
+    "false_positive": false,
+    "error": null
+  },
+  {
+    "experiment": "negative_control",
+    "seed": 42,
+    "candidate_id": "cintv_11414e0a90ab4569b11e4ae48a66e801",
+    "expected_cee": 0.0,
+    "actual_cee": 0.0,
+    "false_positive": false,
+    "error": null
+  },
+  {
+    "experiment": "negative_control",
+    "seed": 1,
+    "candidate_id": "cintv_ec68b823d035b9b0e79a91736a408c88",
+    "expected_cee": 0.0,
+    "actual_cee": 0.0,
+    "false_positive": false,
+    "error": null
+  },
+  {
+    "experiment": "negative_control",
+    "seed": 1,
+    "candidate_id": "cintv_0967905a6ed79f4c5d2bb2f41347ba09",
+    "expected_cee": 0.0,
+    "actual_cee": 0.0,
+    "false_positive": false,
+    "error": null
+  },
+  {
+    "experiment": "negative_control",
+    "seed": 7,
+    "candidate_id": "cintv_9c41b7d8be4041705c1ce298f3267c5d",
+    "expected_cee": 0.0,
+    "actual_cee": 0.0,
+    "false_positive": false,
+    "error": null
+  },
+  {
+    "experiment": "negative_control",
+    "seed": 7,
+    "candidate_id": "cintv_802e9ddf290da3e0d3202c0c0977352f",
+    "expected_cee": 0.0,
+    "actual_cee": 0.0,
+    "false_positive": false,
+    "error": null
+  }
+]

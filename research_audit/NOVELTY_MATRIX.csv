@@ -1,0 +1,25 @@
+Capability,CELA,Who&When,AgentRx,CHIEF,DoVer,CausalFlow,CAR,AgenticRAG-FP,AgenTracer,AGENTSCOPE
+Counterfactual replay,YES,N/A,NO,YES,YES,YES,YES,YES,YES,NO
+do-calculus intervention,YES,N/A,NO,UNCLEAR,YES,YES,YES,NO,PARTIAL,NO
+Provenance-defined channels,YES,NO,NO,PARTIAL,NO,NO,NO,NO,NO,NO
+Evidence-flow graph,YES,NO,NO,PARTIAL,NO,NO,NO,NO,NO,NO
+Channel-level intervention,YES,NO,NO,NO,NO,NO,NO,NO,NO,NO
+Step-level intervention,YES,N/A,YES,YES,YES,YES,YES,NO,YES,NO
+Joint set intervention,YES,NO,NO,UNCLEAR,NO,NO,PARTIAL,NO,NO,NO
+CEE estimation,YES,NO,NO,UNCLEAR,NO,YES,YES,NO,NO,NO
+Cascade prevention,YES,NO,NO,UNCLEAR,NO,NO,NO,NO,NO,NO
+Cost-aware selection,YES,NO,NO,NO,NO,NO,NO,NO,NO,NO
+Greedy cascade optimization,YES,NO,NO,NO,NO,NO,NO,NO,NO,NO
+Redundancy handling,YES,NO,NO,UNCLEAR,NO,NO,PARTIAL,NO,NO,NO
+Complementarity handling,YES,NO,NO,UNCLEAR,NO,NO,PARTIAL,NO,NO,NO
+Multimodal evidence,ARCHITECTURE_ONLY,YES,UNCLEAR,UNCLEAR,UNCLEAR,UNCLEAR,UNCLEAR,NO,UNCLEAR,UNCLEAR
+Multi-agent support,NO,YES,YES,YES,YES,YES,YES,YES,YES,YES
+Learned diagnostic model,NO,NO,NO,NO,NO,NO,NO,NO,YES,PARTIAL
+Constraint-based diagnosis,NO,NO,YES,NO,NO,NO,NO,NO,NO,YES
+Active hypothesis testing,NO,NO,NO,NO,YES,NO,NO,NO,NO,NO
+Shapley credit assignment,NO,NO,NO,NO,NO,NO,YES,NO,NO,NO
+Bootstrap CI,YES,NO,NO,UNCLEAR,NO,UNCLEAR,NO,NO,NO,NO
+Paired statistical tests,YES,NO,NO,UNCLEAR,NO,UNCLEAR,NO,NO,NO,NO
+Ablation analysis,YES,NO,NO,UNCLEAR,NO,UNCLEAR,NO,NO,NO,NO
+Benchmark (synthetic),YES,N/A,NO,UNCLEAR,UNCLEAR,UNCLEAR,UNCLEAR,NO,NO,NO
+Benchmark (external),NO,YES,YES,UNCLEAR,UNCLEAR,UNCLEAR,UNCLEAR,YES,YES,UNCLEAR

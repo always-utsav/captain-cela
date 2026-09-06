@@ -1,0 +1,52 @@
+[
+  {
+    "experiment": "seed_robustness",
+    "seed": 1,
+    "family": "BF-A",
+    "candidate_id": "cintv_5b04f5e677c9544f269e2fe0498febdd",
+    "cee": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "num_valid_trials": 5
+  },
+  {
+    "experiment": "seed_robustness",
+    "seed": 2,
+    "family": "BF-A",
+    "candidate_id": "cintv_af73fbc6e659f365b8c8089013893069",
+    "cee": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "num_valid_trials": 5
+  },
+  {
+    "experiment": "seed_robustness",
+    "seed": 3,
+    "family": "BF-A",
+    "candidate_id": "cintv_d13e67c59d4a449322419fc9ed977a64",
+    "cee": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "num_valid_trials": 5
+  },
+  {
+    "experiment": "seed_robustness",
+    "seed": 42,
+    "family": "BF-A",
+    "candidate_id": "cintv_f3b75cff5208281fb05898f474cb8fe5",
+    "cee": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "num_valid_trials": 5
+  },
+  {
+    "experiment": "seed_robustness",
+    "seed": 100,
+    "family": "BF-A",
+    "candidate_id": "cintv_a8c52f58932c52f3533fda511a02f4ae",
+    "cee": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "num_valid_trials": 5
+  }
+]

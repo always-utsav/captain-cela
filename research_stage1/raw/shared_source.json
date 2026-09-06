@@ -1,0 +1,134 @@
+[
+  {
+    "experiment": "shared_source",
+    "method": "channel_level",
+    "seed": 42,
+    "candidate_id": "cintv_1eb21819c7cfa16069a1981b8de1c00b",
+    "candidate_label": "irrelevant",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.4259,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "step_level",
+    "seed": 42,
+    "candidate_id": "cintv_1eb21819c7cfa16069a1981b8de1c00b",
+    "candidate_label": "irrelevant",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.2973,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "channel_level",
+    "seed": 42,
+    "candidate_id": "cintv_f3b75cff5208281fb05898f474cb8fe5",
+    "candidate_label": "causal",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.2957,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "step_level",
+    "seed": 42,
+    "candidate_id": "cintv_f3b75cff5208281fb05898f474cb8fe5",
+    "candidate_label": "causal",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.2565,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "channel_level",
+    "seed": 1,
+    "candidate_id": "cintv_5b04f5e677c9544f269e2fe0498febdd",
+    "candidate_label": "causal",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.2763,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "step_level",
+    "seed": 1,
+    "candidate_id": "cintv_5b04f5e677c9544f269e2fe0498febdd",
+    "candidate_label": "causal",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.2967,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "channel_level",
+    "seed": 1,
+    "candidate_id": "cintv_963b55a83e1d9adac72fe70d83ec4cf3",
+    "candidate_label": "irrelevant",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.4776,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "step_level",
+    "seed": 1,
+    "candidate_id": "cintv_963b55a83e1d9adac72fe70d83ec4cf3",
+    "candidate_label": "irrelevant",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.3029,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "channel_level",
+    "seed": 7,
+    "candidate_id": "cintv_bb98270290be8b3ac0daa0117d96a14d",
+    "candidate_label": "irrelevant",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.3182,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "step_level",
+    "seed": 7,
+    "candidate_id": "cintv_bb98270290be8b3ac0daa0117d96a14d",
+    "candidate_label": "irrelevant",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.2731,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "channel_level",
+    "seed": 7,
+    "candidate_id": "cintv_983effeb2028e9b53a2e678ba8114486",
+    "candidate_label": "causal",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.2408,
+    "error": null
+  },
+  {
+    "experiment": "shared_source",
+    "method": "step_level",
+    "seed": 7,
+    "candidate_id": "cintv_983effeb2028e9b53a2e678ba8114486",
+    "candidate_label": "causal",
+    "cee": 0.0,
+    "prevented": false,
+    "runtime_ms": 0.2606,
+    "error": null
+  }
+]
