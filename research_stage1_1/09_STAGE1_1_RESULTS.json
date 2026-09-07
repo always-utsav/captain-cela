@@ -1,0 +1,122 @@
+{
+  "stage": "1.1",
+  "seed": 42,
+  "n_replays": 3,
+  "timestamp": "2026-09-07T20:58:34",
+  "positive_controls": [
+    {
+      "status": "success",
+      "factual_failed": true,
+      "cf_failed": false,
+      "cee": 1.0,
+      "target_id": "evt_3219460aa64d9684",
+      "intervention_type": "tool_result_override",
+      "label": "causal",
+      "candidate_id": "cintv_f3b75cff520828"
+    }
+  ],
+  "negative_controls": [
+    {
+      "status": "success",
+      "factual_failed": true,
+      "cf_failed": true,
+      "cee": 0.0,
+      "target_id": "evt_e78736880b392280",
+      "intervention_type": "tool_result_override",
+      "label": "distractor",
+      "candidate_id": "cintv_1eb21819c7cfa1"
+    },
+    {
+      "status": "success",
+      "factual_failed": true,
+      "cf_failed": true,
+      "cee": 0.0,
+      "target_id": "evt_9e1a7c3c45cc5555",
+      "intervention_type": "tool_result_override",
+      "label": "bf_d_distractor",
+      "candidate_id": "cintv_3b5b22c7099dc8"
+    },
+    {
+      "status": "success",
+      "factual_failed": true,
+      "cf_failed": true,
+      "cee": 0.0,
+      "target_id": "evt_e78736880b392280",
+      "intervention_type": "tool_result_override",
+      "label": "bf_d_distractor",
+      "candidate_id": "cintv_11414e0a90ab45"
+    }
+  ],
+  "leakage_checks": {
+    "evaluator_uses_intervention_id": false,
+    "evaluator_uses_ground_truth": false,
+    "evaluator_uses_is_counterfactual": false
+  },
+  "shared_source_tests": [
+    {
+      "status": "success",
+      "factual_failed": true,
+      "cf_failed": true,
+      "cee": 0.0,
+      "target_id": "evt_9e1a7c3c45cc5555",
+      "intervention_type": "tool_result_override",
+      "label": "non_causal",
+      "candidate_id": "cintv_3b5b22c7099dc8"
+    },
+    {
+      "status": "success",
+      "factual_failed": true,
+      "cf_failed": true,
+      "cee": 0.0,
+      "target_id": "evt_3219460aa64d9684",
+      "intervention_type": "tool_result_override",
+      "label": "non_causal",
+      "candidate_id": "cintv_de96bf628f5510"
+    },
+    {
+      "status": "success",
+      "factual_failed": true,
+      "cf_failed": false,
+      "cee": 1.0,
+      "target_id": "evt_e78736880b392280",
+      "intervention_type": "tool_result_override",
+      "label": "causal",
+      "candidate_id": "cintv_11414e0a90ab45"
+    }
+  ],
+  "step_vs_channel": [
+    {
+      "channel_target": "evt_e78736880b392280",
+      "channel_type": "tool_result_override",
+      "step_target": "evt_55f4f7bea0d98b0f",
+      "step_type": "event_output_override",
+      "targets_differ": true,
+      "types_differ": true
+    }
+  ],
+  "reproducibility": {
+    "trials": 3,
+    "cee_values": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "identical": true
+  },
+  "test_summary": {
+    "returncode": 0,
+    "summary": "677 passed in 8.04s",
+    "pass": true
+  },
+  "criteria": {
+    "A_cee_responsiveness": true,
+    "B_negative_control": true,
+    "C_no_leakage": true,
+    "D_channel_isolation": true,
+    "E_step_channel_distinction": true,
+    "F_reproducibility": true,
+    "G_regression": true
+  },
+  "status": "PASS",
+  "verdict": "PASS -- READY FOR STAGE 2"
+}

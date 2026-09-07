@@ -25,6 +25,7 @@ from pydantic import BaseModel, Field
 from captain.adapters.llm import MockLLMProvider
 from captain.agent.agent import Agent
 from captain.agent.tools import (
+    FixedValueTool,
     ToolRegistry,
     create_default_tool_registry,
 )
@@ -292,7 +293,14 @@ def generate_single_cause(
         f"The answer is {failure_keyword} and hello world.",
     ]
 
-    run = _execute_scenario(responses, "Compute and greet")
+    # Use FixedValueTool so tool results match the LLM's scripted
+    # responses.  This establishes the genuine causal chain:
+    #   tool result → LLM reasoning → evaluator outcome
+    reg = ToolRegistry()
+    reg.register(FixedValueTool(causal_tool, failure_keyword))
+    reg.register(FixedValueTool("echo", "hello world"))
+
+    run = _execute_scenario(responses, "Compute and greet", tool_registry=reg)
     graph = _build_graph(run)
 
     failure = Failure(
@@ -372,7 +380,11 @@ def generate_redundant(
         f"The answer is {keywords[0]} and {keywords[1]} world.",
     ]
 
-    run = _execute_scenario(responses, "Compute and greet")
+    reg = ToolRegistry()
+    reg.register(FixedValueTool("calculator", keywords[0]))
+    reg.register(FixedValueTool("echo", f"{keywords[1]} world"))
+
+    run = _execute_scenario(responses, "Compute and greet", tool_registry=reg)
     graph = _build_graph(run)
     failure = Failure(
         run_id=run.run_id,
@@ -452,7 +464,11 @@ def generate_complementary(
         f"The answer is {keywords[0]} and {keywords[1]} world.",
     ]
 
-    run = _execute_scenario(responses, "Compute and greet")
+    reg = ToolRegistry()
+    reg.register(FixedValueTool("calculator", keywords[0]))
+    reg.register(FixedValueTool("echo", f"{keywords[1]} world"))
+
+    run = _execute_scenario(responses, "Compute and greet", tool_registry=reg)
     graph = _build_graph(run)
     failure = Failure(
         run_id=run.run_id,
@@ -536,7 +552,12 @@ def generate_distractor(
         f"The answer is {failure_keyword}, greeting received, time noted.",
     ]
 
-    run = _execute_scenario(responses, "Compute, greet, and check time")
+    reg = ToolRegistry()
+    reg.register(FixedValueTool("calculator", failure_keyword))
+    reg.register(FixedValueTool("echo", "greeting"))
+    reg.register(FixedValueTool("timestamp", "now"))
+
+    run = _execute_scenario(responses, "Compute, greet, and check time", tool_registry=reg)
     graph = _build_graph(run)
     failure = Failure(
         run_id=run.run_id,
@@ -615,7 +636,10 @@ def generate_cascade(
         f"Final answer: {failure_keyword}.",
     ]
 
-    run = _execute_scenario(responses, "Compute a value")
+    reg = ToolRegistry()
+    reg.register(FixedValueTool("calculator", failure_keyword))
+
+    run = _execute_scenario(responses, "Compute a value", tool_registry=reg)
     graph = _build_graph(run)
     failure = Failure(
         run_id=run.run_id,
@@ -692,7 +716,11 @@ def generate_cost_asymmetric(
         "The answer is 42 and hello world.",
     ]
 
-    run = _execute_scenario(responses, "Compute and greet")
+    reg = ToolRegistry()
+    reg.register(FixedValueTool("calculator", "42"))
+    reg.register(FixedValueTool("echo", "hello world"))
+
+    run = _execute_scenario(responses, "Compute and greet", tool_registry=reg)
     graph = _build_graph(run)
     failure = Failure(
         run_id=run.run_id,
@@ -764,6 +792,132 @@ def generate_cost_asymmetric(
     return scenario
 
 
+# ===================================================================
+# BF-G: Shared-source multi-channel scenario (Stage 1.1)
+# ===================================================================
+
+
+def generate_shared_source(
+    *,
+    seed: int = 42,
+    failure_keyword: str = "42",
+) -> BenchmarkScenario:
+    """BF-G: Shared-source multi-channel scenario.
+
+    **Stage 1.1 — Blocker B validation.**
+
+    ONE source tool (``data_source``) produces a composite result
+    containing a failure keyword AND benign data.  TWO downstream
+    tools consume different parts:
+
+    - ``analyzer`` extracts the failure keyword → channel A (causal)
+    - ``validator`` extracts the benign status → channel B (non-causal)
+
+    Structure::
+
+                         ┌── analyzer → "42" → FAILURE
+        data_source ────┤
+                         └── validator → "ok" → SUCCESS
+
+    Channel-level intervention on A (analyzer) should block the
+    failure keyword WITHOUT affecting B (validator).
+
+    Step-level intervention on the data_source event would block
+    BOTH channels since both depend on the same source event.
+
+    Hidden causal truth:
+    - Channel A (data_source → analyzer): CAUSAL
+    - Channel B (data_source → validator): NON-CAUSAL
+    """
+    composite_result = f"ANSWER={failure_keyword};STATUS=ok"
+
+    responses = [
+        (
+            "1. [TOOL:data_source] Get data\n"
+            "2. [TOOL:analyzer] Analyze the answer\n"
+            "3. [TOOL:validator] Validate status\n"
+            "4. Summarise"
+        ),
+        (f"The analyzer found {failure_keyword} and the validator confirmed ok."),
+        f"Result: {failure_keyword}, status ok.",
+    ]
+
+    reg = ToolRegistry()
+    reg.register(FixedValueTool("data_source", composite_result))
+    reg.register(FixedValueTool("analyzer", failure_keyword))
+    reg.register(FixedValueTool("validator", "ok"))
+
+    run = _execute_scenario(
+        responses,
+        "Get data, analyze and validate",
+        tool_registry=reg,
+    )
+    graph = _build_graph(run)
+
+    failure = Failure(
+        run_id=run.run_id,
+        failure_type=FailureType.TASK_FAILURE,
+        description="Output contains failure keyword from shared source",
+        failure_event_id=run.events[-1].event_id,
+    )
+
+    all_interventions = _get_tool_channel_interventions(run, graph, failure)
+
+    # Classify channels by tool
+    source_channels = _find_channels_by_tool(run, graph, all_interventions, "data_source")
+    analyzer_channels = _find_channels_by_tool(run, graph, all_interventions, "analyzer")
+    validator_channels = _find_channels_by_tool(run, graph, all_interventions, "validator")
+
+    # Causal: analyzer channels (carry the failure keyword)
+    # Non-causal: validator channels + data_source channels
+    causal_ids = [ci.intervention_id for ci in analyzer_channels]
+    non_causal_ids = [ci.intervention_id for ci in validator_channels] + [
+        ci.intervention_id for ci in source_channels
+    ]
+
+    mechanism = CausalMechanismSpec(
+        mechanism=CausalMechanism.SINGLE_CHANNEL,
+        failure_keywords=[failure_keyword],
+        keyword_logic="any",
+        causal_tool_names=["analyzer"],
+        distractor_tool_names=["validator", "data_source"],
+    )
+
+    evaluator = _build_keyword_evaluator([failure_keyword], "any")
+
+    ground_truth = ScenarioGroundTruth(
+        scenario_id=f"bf_g_{seed}",
+        family="BF-G",
+        seed=seed,
+        mechanism=mechanism,
+        causal_channel_ids=causal_ids,
+        irrelevant_channel_ids=non_causal_ids,
+        causal_origin_ids=causal_ids,
+        propagation_channel_ids=[],
+        failure_actuator_ids=causal_ids,
+        required_prevention_sets=[causal_ids] if causal_ids else [],
+        factual_outcome=evaluator(run),
+        single_intervention_outcomes={
+            **dict.fromkeys(causal_ids, False),
+            **dict.fromkeys(non_causal_ids, True),
+        },
+        joint_intervention_outcome=False,
+    )
+
+    scenario = BenchmarkScenario(
+        scenario_id=ground_truth.scenario_id,
+        family="BF-G",
+        seed=seed,
+        run=run,
+        evidence_graph=graph,
+        failure=failure,
+        candidates=all_interventions,
+        ground_truth=ground_truth,
+    )
+    scenario._evaluator = evaluator  # type: ignore[attr-defined]
+    return scenario
+
+
 def get_evaluator(scenario: BenchmarkScenario) -> FailureEvaluator:
     """Get the failure evaluator for a scenario.
 
@@ -785,4 +939,5 @@ def all_scenarios(*, seed: int = 42) -> list[BenchmarkScenario]:
         generate_distractor(seed=seed),
         generate_cascade(seed=seed),
         generate_cost_asymmetric(seed=seed),
+        generate_shared_source(seed=seed),
     ]

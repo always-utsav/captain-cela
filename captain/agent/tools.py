@@ -202,6 +202,40 @@ class EchoTool(Tool):
         return args.get("message", "")
 
 
+class FixedValueTool(Tool):
+    """Tool that always returns a pre-configured value.
+
+    Used in benchmark scenarios to ensure tool results match the
+    values referenced in the MockLLM's scripted responses.  This
+    makes the agent execution genuinely dependent on tool outputs:
+    if the tool result is overridden during counterfactual replay,
+    the downstream text changes accordingly.
+
+    This is NOT a test-only convenience — it establishes the causal
+    dependency chain:
+
+        tool result → LLM reasoning → evaluator outcome
+
+    Without it, the tool result and LLM response are disconnected.
+    """
+
+    def __init__(self, tool_name: str, value: str, desc: str = "") -> None:
+        self._name = tool_name
+        self._value = value
+        self._desc = desc or f"Returns: {value}"
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def description(self) -> str:
+        return self._desc
+
+    def execute(self, args: dict[str, str]) -> str:
+        return self._value
+
+
 def create_default_tool_registry(
     *,
     frozen_time: datetime | None = None,

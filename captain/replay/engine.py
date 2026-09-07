@@ -297,7 +297,13 @@ def _apply(
     data: dict[str, Any],
     run: ExecutionRun,
 ) -> dict[str, Any]:
-    """Apply interventions to produce modified replay inputs."""
+    """Apply interventions to produce modified replay inputs.
+
+    When tool results are overridden, downstream LLM responses are
+    updated to reflect the new tool output.  This simulates a
+    responsive LLM that incorporates tool results into its reasoning
+    and final output.
+    """
     task = data["task_text"]
     llm = list(data["llm"])
     ovr: dict[str, dict[int, str]] = {}
@@ -308,6 +314,9 @@ def _apply(
     abi = data["abi"]
     steps = data["steps"]
     tcm = data["tcm"]
+
+    # Track original tool results for causal propagation
+    tool_result_changes: list[tuple[str, str]] = []
 
     def _rv(intv: Intervention) -> str:
         v = intv.replacement_value
@@ -336,8 +345,13 @@ def _apply(
                 si = evt.payload.get("step_index")
                 if si is not None and si in tcm:
                     nm, ci = tcm[si]
-                    ovr.setdefault(nm, {})[ci] = _rv(intv)
+                    new_val = _rv(intv)
+                    ovr.setdefault(nm, {})[ci] = new_val
                     applied.append(intv.intervention_id)
+                    # Record original → new for propagation
+                    orig = evt.payload.get("result", "")
+                    if orig and orig != new_val:
+                        tool_result_changes.append((orig, new_val))
 
         elif it == InterventionType.EVENT_DISABLE:
             evt = ebi.get(intv.target_id)
@@ -364,7 +378,12 @@ def _apply(
                 ):
                     if si is not None and si in tcm:
                         nm, ci = tcm[si]
-                        ovr.setdefault(nm, {})[ci] = _rv(intv)
+                        new_val = _rv(intv)
+                        ovr.setdefault(nm, {})[ci] = new_val
+                        # Record for propagation
+                        orig = evt.payload.get("result", "")
+                        if orig and orig != new_val:
+                            tool_result_changes.append((orig, new_val))
                 elif et == EventType.REASONING:
                     ri = _r_idx(si, steps)
                     if ri is not None:
@@ -376,12 +395,59 @@ def _apply(
     if dis:
         llm, ovr = _rebuild(data, dis, ovr)
 
+    # ---------------------------------------------------------------
+    # Causal propagation: when a tool result changes, downstream
+    # LLM responses that incorporated that result must also change.
+    #
+    # A real LLM produces text that references tool outputs.  The
+    # MockLLM's scripted responses were generated from original tool
+    # results.  Propagation substitutes original result text with
+    # the replacement in all downstream LLM responses (reasoning
+    # steps and final output).
+    #
+    # This does NOT change the evaluator, the CEE formula, or
+    # any causal definition.  It makes the mock agent responsive
+    # to its inputs, which is the prerequisite for meaningful
+    # counterfactual measurement.
+    # ---------------------------------------------------------------
+    if tool_result_changes:
+        llm = _propagate_tool_overrides(llm, tool_result_changes)
+
     return {
         "task_text": task,
         "llm": llm,
         "ovr": ovr,
         "applied": applied,
     }
+
+
+def _propagate_tool_overrides(
+    llm: list[str],
+    changes: list[tuple[str, str]],
+) -> list[str]:
+    """Propagate tool result changes to downstream LLM responses.
+
+    For each (original, replacement) pair, substitute in reasoning
+    responses (llm[1:-1]) and the final output (llm[-1]).
+
+    The plan response (llm[0]) is NOT modified because it is
+    generated before any tool calls.
+
+    Scientific justification:
+    -  A real LLM's reasoning output references tool results.
+    -  The baseline MockLLM responses contain original tool text.
+    -  When the tool result changes, the text that a responsive LLM
+       would have produced also changes.
+    -  This propagation simulates that dependency without requiring
+       a real LLM.
+    """
+    result = list(llm)
+    # Propagate to reasoning + final output (indices 1 onward)
+    for i in range(1, len(result)):
+        for orig, repl in changes:
+            if orig in result[i]:
+                result[i] = result[i].replace(orig, repl)
+    return result
 
 
 def _do_art(

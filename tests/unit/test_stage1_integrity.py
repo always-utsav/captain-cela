@@ -14,7 +14,6 @@ import json
 import pytest
 
 from captain.benchmarks.baselines import (
-    CELAMethod,
     CostAwareBaseline,
     GraphStructuralBaseline,
     ProvenanceOnlyBaseline,
@@ -30,12 +29,9 @@ from captain.benchmarks.scenarios import (
 )
 from captain.evidence.graph import EvidenceFlowGraph
 from captain.evidence.lineage import EvidenceLineageBuilder
-from captain.failures.analyzer import FailureAnalyzer
-from captain.failures.model import ChannelIntervention, Failure, FailureType
-from captain.intervention.model import Intervention, InterventionSet, InterventionType
+from captain.intervention.model import InterventionSet
 from captain.models.ids import deterministic_ids
 from captain.replay.engine import CounterfactualReplayEngine
-
 
 # =================================================================
 # INFORMATION LEAKAGE TESTS
@@ -320,8 +316,8 @@ class TestDeterminism:
 
     def test_metrics_deterministic_across_runs(self) -> None:
         """Metrics from same scenario/seed are identical."""
-        from captain.analysis.estimator import CEEEstimator
         from captain.agent.tools import create_default_tool_registry
+        from captain.analysis.estimator import CEEEstimator
 
         for _ in range(2):
             with deterministic_ids(seed=42):
@@ -354,8 +350,8 @@ class TestNegativeControls:
 
     def test_irrelevant_channel_has_zero_cee(self) -> None:
         """Intervening on non-causal channel should have ~0 CEE."""
-        from captain.analysis.estimator import CEEEstimator
         from captain.agent.tools import create_default_tool_registry
+        from captain.analysis.estimator import CEEEstimator
 
         with deterministic_ids(seed=42):
             scenario = generate_distractor(seed=42)
@@ -364,8 +360,7 @@ class TestNegativeControls:
         # Find irrelevant (distractor) channel
         irrelevant_ids = set(scenario.ground_truth.irrelevant_channel_ids)
         irrelevant_candidates = [
-            ci for ci in scenario.candidates
-            if ci.intervention_id in irrelevant_ids
+            ci for ci in scenario.candidates if ci.intervention_id in irrelevant_ids
         ]
 
         if not irrelevant_candidates:
@@ -394,13 +389,16 @@ class TestNegativeControls:
 class TestBenchmarkValidation:
     """Verify benchmark families produce valid scenarios."""
 
-    @pytest.mark.parametrize("family,generator,expected_mechanism", [
-        ("BF-A", generate_single_cause, "single_channel"),
-        ("BF-B", generate_redundant, "redundant_or"),
-        ("BF-C", generate_complementary, "complementary_and"),
-        ("BF-D", generate_distractor, "distractor"),
-        ("BF-E", generate_cascade, "cascade"),
-    ])
+    @pytest.mark.parametrize(
+        "family,generator,expected_mechanism",
+        [
+            ("BF-A", generate_single_cause, "single_channel"),
+            ("BF-B", generate_redundant, "redundant_or"),
+            ("BF-C", generate_complementary, "complementary_and"),
+            ("BF-D", generate_distractor, "distractor"),
+            ("BF-E", generate_cascade, "cascade"),
+        ],
+    )
     def test_family_structure(self, family, generator, expected_mechanism) -> None:
         """Each family generates correct causal structure."""
         with deterministic_ids(seed=42):
@@ -437,8 +435,8 @@ class TestReplayConvergence:
 
     def test_more_replays_tighter_ci(self) -> None:
         """CI width should decrease with more replays."""
-        from captain.analysis.estimator import CEEEstimator
         from captain.agent.tools import create_default_tool_registry
+        from captain.analysis.estimator import CEEEstimator
 
         with deterministic_ids(seed=42):
             scenario = generate_single_cause(seed=42)
@@ -466,5 +464,4 @@ class TestReplayConvergence:
 
         # More replays should give tighter or equal CI
         # (with small N this may not always hold perfectly)
-        assert widths[-1] <= widths[0] + 0.1, \
-            f"CI should not widen significantly: {widths}"
+        assert widths[-1] <= widths[0] + 0.1, f"CI should not widen significantly: {widths}"
