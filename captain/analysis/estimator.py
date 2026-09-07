@@ -233,6 +233,40 @@ def channel_to_intervention(
                 intv_type = InterventionType.EVENT_OUTPUT_OVERRIDE
 
                 if source_event.event_type == EventType.TOOL_RESULT:
+                    # Check if this is a multi-artifact source event.
+                    # If yes, use ARTIFACT_REPLACEMENT to target the
+                    # specific artifact (per-channel granularity).
+                    if len(source_event.output_artifact_ids) > 1 and source_evi.artifact_id:
+                        return Intervention(
+                            intervention_type=InterventionType.ARTIFACT_REPLACEMENT,
+                            baseline_run_id=channel.baseline_run_id,
+                            target_id=source_evi.artifact_id,
+                            replacement_value="",
+                            description=(
+                                f"Channel BLOCK (artifact-level): "
+                                f"{channel.source_evidence_id[:16]}"
+                                f"→{channel.target_evidence_id[:16]}"
+                                f" via artifact {source_evi.artifact_id[:16]}"
+                            ),
+                            metadata={
+                                "channel_intervention_id": channel.intervention_id,
+                                "source_evidence_id": channel.source_evidence_id,
+                                "target_evidence_id": channel.target_evidence_id,
+                                "source_event_id": source_event_id,
+                                "target_artifact_id": source_evi.artifact_id,
+                                "source_event_type": source_event.event_type.value,
+                                "intervention_type": "channel_block",
+                                "channel_level": True,
+                                "multi_artifact_source": True,
+                                "mechanism": (
+                                    "Multi-artifact source event: targets "
+                                    "individual artifact, not the entire event. "
+                                    "Preserves sibling artifacts from the same "
+                                    "source event."
+                                ),
+                            },
+                        )
+
                     intv_type = InterventionType.TOOL_RESULT_OVERRIDE
                     target_event_id = source_event_id
                 elif source_event.event_type == EventType.TOOL_CALL:
@@ -244,6 +278,37 @@ def channel_to_intervention(
                             evt.event_type == EventType.TOOL_RESULT
                             and evt.parent_event_id == source_event_id
                         ):
+                            # Multi-artifact check on the TOOL_RESULT
+                            if len(evt.output_artifact_ids) > 1 and source_evi.artifact_id:
+                                return Intervention(
+                                    intervention_type=InterventionType.ARTIFACT_REPLACEMENT,
+                                    baseline_run_id=channel.baseline_run_id,
+                                    target_id=source_evi.artifact_id,
+                                    replacement_value="",
+                                    description=(
+                                        f"Channel BLOCK (artifact-level): "
+                                        f"{channel.source_evidence_id[:16]}"
+                                        f"→{channel.target_evidence_id[:16]}"
+                                        f" via artifact {source_evi.artifact_id[:16]}"
+                                    ),
+                                    metadata={
+                                        "channel_intervention_id": channel.intervention_id,
+                                        "source_evidence_id": channel.source_evidence_id,
+                                        "target_evidence_id": channel.target_evidence_id,
+                                        "source_event_id": source_event_id,
+                                        "target_artifact_id": source_evi.artifact_id,
+                                        "source_event_type": source_event.event_type.value,
+                                        "intervention_type": "channel_block",
+                                        "channel_level": True,
+                                        "multi_artifact_source": True,
+                                        "mechanism": (
+                                            "Multi-artifact source event: targets "
+                                            "individual artifact, not the entire event. "
+                                            "Preserves sibling artifacts from the same "
+                                            "source event."
+                                        ),
+                                    },
+                                )
                             target_event_id = evt.event_id
                             intv_type = InterventionType.TOOL_RESULT_OVERRIDE
                             break

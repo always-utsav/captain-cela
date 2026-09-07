@@ -164,21 +164,40 @@ class TracedAgent:
                     step, memory, agent._tool_registry, step_index=idx
                 )
 
-                # Record tool result artifact
-                result_artifact = collector.record_artifact(
-                    ArtifactType.TOOL_OUTPUT,
-                    value=result,
-                    producer_event_id=tool_call_event.event_id,
-                )
-                tool_result_artifact_ids.append(result_artifact.artifact_id)
+                # Record tool result artifact(s).
+                # If the result contains MULTI_OUTPUT_SEPARATOR, split
+                # into multiple artifacts from the same source event.
+                # This creates genuinely shared-source evidence channels
+                # in the provenance graph.
+                from captain.agent.tools import MULTI_OUTPUT_SEPARATOR
+
+                if MULTI_OUTPUT_SEPARATOR in result:
+                    parts = result.split(MULTI_OUTPUT_SEPARATOR)
+                    result_artifact_ids: list[str] = []
+                    for part in parts:
+                        art = collector.record_artifact(
+                            ArtifactType.TOOL_OUTPUT,
+                            value=part.strip(),
+                            producer_event_id=tool_call_event.event_id,
+                        )
+                        result_artifact_ids.append(art.artifact_id)
+                        tool_result_artifact_ids.append(art.artifact_id)
+                else:
+                    result_artifact = collector.record_artifact(
+                        ArtifactType.TOOL_OUTPUT,
+                        value=result,
+                        producer_event_id=tool_call_event.event_id,
+                    )
+                    result_artifact_ids = [result_artifact.artifact_id]
+                    tool_result_artifact_ids.append(result_artifact.artifact_id)
 
                 # TOOL_RESULT event (parent = TOOL_CALL)
                 collector.record_event(
                     EventType.TOOL_RESULT,
                     component=f"tool:{step.tool_name}",
                     parent_event_id=tool_call_event.event_id,
-                    input_artifact_ids=[result_artifact.artifact_id],
-                    output_artifact_ids=[result_artifact.artifact_id],
+                    input_artifact_ids=list(result_artifact_ids),
+                    output_artifact_ids=list(result_artifact_ids),
                     payload={
                         "tool_name": step.tool_name,
                         "result": result,

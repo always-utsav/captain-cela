@@ -336,6 +336,7 @@ def _apply(
                 task,
                 llm,
                 ovr,
+                tool_result_changes=tool_result_changes,
             )
             applied.append(intv.intervention_id)
 
@@ -352,6 +353,15 @@ def _apply(
                     orig = evt.payload.get("result", "")
                     if orig and orig != new_val:
                         tool_result_changes.append((orig, new_val))
+                        # For multi-output tools, also propagate
+                        # individual artifact values
+                        from captain.agent.tools import MULTI_OUTPUT_SEPARATOR
+
+                        if MULTI_OUTPUT_SEPARATOR in orig:
+                            for part in orig.split(MULTI_OUTPUT_SEPARATOR):
+                                part = part.strip()
+                                if part and part != new_val:
+                                    tool_result_changes.append((part, new_val))
 
         elif it == InterventionType.EVENT_DISABLE:
             evt = ebi.get(intv.target_id)
@@ -460,13 +470,25 @@ def _do_art(
     task: str,
     llm: list[str],
     ovr: dict[str, dict[int, str]],
+    tool_result_changes: list[tuple[str, str]] | None = None,
 ) -> tuple[str, list[str], dict[str, dict[int, str]]]:
-    """Apply ARTIFACT_REPLACEMENT."""
+    """Apply ARTIFACT_REPLACEMENT.
+
+    For multi-artifact tool results, replaces only the targeted
+    artifact's value in downstream LLM responses, preserving
+    sibling artifacts from the same source event.
+    """
     v = str(intv.replacement_value) if intv.replacement_value else ""
     kind, si = _art_boundary(intv.target_id, run, ebi, abi)
     if kind == "input":
         task = v
     elif kind == "tool" and si is not None and si in tcm:
+        # Check if this is a per-artifact replacement for a multi-output tool
+        art = abi.get(intv.target_id)
+        if art and art.value and tool_result_changes is not None:
+            orig_val = str(art.value) if art.value is not None else ""
+            if orig_val and orig_val != v:
+                tool_result_changes.append((orig_val, v))
         nm, ci = tcm[si]
         ovr.setdefault(nm, {})[ci] = v
     elif kind == "reasoning":

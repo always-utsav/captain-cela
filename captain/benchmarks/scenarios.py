@@ -804,52 +804,53 @@ def generate_shared_source(
 ) -> BenchmarkScenario:
     """BF-G: Shared-source multi-channel scenario.
 
-    **Stage 1.1 — Blocker B validation.**
+    **Stage 1.1-B — Genuine multi-artifact shared source.**
 
-    ONE source tool (``data_source``) produces a composite result
-    containing a failure keyword AND benign data.  TWO downstream
-    tools consume different parts:
+    ONE source tool (``data_source``) produces TWO artifacts from a
+    single event via ``MULTI_OUTPUT_SEPARATOR``:
 
-    - ``analyzer`` extracts the failure keyword → channel A (causal)
-    - ``validator`` extracts the benign status → channel B (non-causal)
+    - Artifact A = failure keyword (causal channel)
+    - Artifact B = benign status (non-causal channel)
+
+    Both artifacts share the same ``producer_event_id`` and the same
+    ``TOOL_RESULT`` event's ``output_artifact_ids`` list.
 
     Structure::
 
-                         ┌── analyzer → "42" → FAILURE
-        data_source ────┤
-                         └── validator → "ok" → SUCCESS
+        data_source event (step 0)
+            ├── artifact_A = "42"    → Evidence A → reasoning → FAILURE
+            └── artifact_B = "ok"    → Evidence B → reasoning → benign
 
-    Channel-level intervention on A (analyzer) should block the
-    failure keyword WITHOUT affecting B (validator).
+    Channel-level intervention on A uses ARTIFACT_REPLACEMENT to
+    target artifact_A specifically, preserving artifact_B.
 
-    Step-level intervention on the data_source event would block
-    BOTH channels since both depend on the same source event.
+    Source-step intervention overrides the entire TOOL_RESULT event,
+    blocking BOTH A and B.
 
     Hidden causal truth:
-    - Channel A (data_source → analyzer): CAUSAL
-    - Channel B (data_source → validator): NON-CAUSAL
+    - Evidence from artifact_A: CAUSAL
+    - Evidence from artifact_B: NON-CAUSAL
     """
-    composite_result = f"ANSWER={failure_keyword};STATUS=ok"
+    from captain.agent.tools import MULTI_OUTPUT_SEPARATOR
+
+    # Single source tool returns two artifacts via separator
+    multi_result = f"{failure_keyword}{MULTI_OUTPUT_SEPARATOR}ok"
 
     responses = [
+        "1. [TOOL:data_source] Get data\n2. Summarise",
         (
-            "1. [TOOL:data_source] Get data\n"
-            "2. [TOOL:analyzer] Analyze the answer\n"
-            "3. [TOOL:validator] Validate status\n"
-            "4. Summarise"
+            f"The data source returned {failure_keyword} and ok. "
+            f"The answer value is {failure_keyword}, status is ok."
         ),
-        (f"The analyzer found {failure_keyword} and the validator confirmed ok."),
         f"Result: {failure_keyword}, status ok.",
     ]
 
     reg = ToolRegistry()
-    reg.register(FixedValueTool("data_source", composite_result))
-    reg.register(FixedValueTool("analyzer", failure_keyword))
-    reg.register(FixedValueTool("validator", "ok"))
+    reg.register(FixedValueTool("data_source", multi_result))
 
     run = _execute_scenario(
         responses,
-        "Get data, analyze and validate",
+        "Get data and summarise",
         tool_registry=reg,
     )
     graph = _build_graph(run)
@@ -863,24 +864,32 @@ def generate_shared_source(
 
     all_interventions = _get_tool_channel_interventions(run, graph, failure)
 
-    # Classify channels by tool
-    source_channels = _find_channels_by_tool(run, graph, all_interventions, "data_source")
-    analyzer_channels = _find_channels_by_tool(run, graph, all_interventions, "analyzer")
-    validator_channels = _find_channels_by_tool(run, graph, all_interventions, "validator")
+    # Classify channels by artifact value.
+    # Evidence from artifact_A (value=failure_keyword) is causal.
+    # Evidence from artifact_B (value="ok") is non-causal.
+    causal_ids: list[str] = []
+    non_causal_ids: list[str] = []
 
-    # Causal: analyzer channels (carry the failure keyword)
-    # Non-causal: validator channels + data_source channels
-    causal_ids = [ci.intervention_id for ci in analyzer_channels]
-    non_causal_ids = [ci.intervention_id for ci in validator_channels] + [
-        ci.intervention_id for ci in source_channels
-    ]
+    evi_by_id = {e.evidence_id: e for e in graph.evidence}
+    art_by_id = {a.artifact_id: a for a in run.artifacts}
+
+    for ci in all_interventions:
+        src_evi = evi_by_id.get(ci.source_evidence_id)
+        if src_evi and src_evi.artifact_id:
+            art = art_by_id.get(src_evi.artifact_id)
+            if art and art.value == failure_keyword:
+                causal_ids.append(ci.intervention_id)
+            else:
+                non_causal_ids.append(ci.intervention_id)
+        else:
+            non_causal_ids.append(ci.intervention_id)
 
     mechanism = CausalMechanismSpec(
         mechanism=CausalMechanism.SINGLE_CHANNEL,
         failure_keywords=[failure_keyword],
         keyword_logic="any",
-        causal_tool_names=["analyzer"],
-        distractor_tool_names=["validator", "data_source"],
+        causal_tool_names=["data_source"],
+        distractor_tool_names=[],
     )
 
     evaluator = _build_keyword_evaluator([failure_keyword], "any")

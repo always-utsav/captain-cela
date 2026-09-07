@@ -1,0 +1,60 @@
+{
+  "stage": "1.1B",
+  "source_event_id": "evt_c87340c40e927f634a664c35bb562f91",
+  "source_evidence_ids": [
+    "evi_cb7eaf183bf3dfb0c322805300abc5c4",
+    "evi_16e19247ed835762d5add82f9cc60005"
+  ],
+  "source_artifact_ids": [
+    "art_a792e50efa8a001347a17b0604a51164",
+    "art_0869c9daf8a790ba2af84e4b5658e2c0"
+  ],
+  "shared_producer_event": "evt_fd39b20c82d3841ec26a167d4f2267fe",
+  "factual": {
+    "A_present": true,
+    "B_present": true,
+    "outcome": true
+  },
+  "channel_A_intervention": {
+    "A_present": false,
+    "B_present": true,
+    "failure": false,
+    "cee": 1.0,
+    "affected_evidence": [
+      "evi_cb7eaf183bf3dfb0c322805300abc5c4"
+    ],
+    "preserved_evidence": [
+      "evi_16e19247ed835762d5add82f9cc60005"
+    ],
+    "intervention_type": "artifact_replacement",
+    "target_id": "art_a792e50efa8a001347a17b0604a51164",
+    "multi_artifact_source": true
+  },
+  "source_step_intervention": {
+    "A_present": false,
+    "B_present": false,
+    "failure": false,
+    "affected_evidence": [
+      "evi_cb7eaf183bf3dfb0c322805300abc5c4",
+      "evi_16e19247ed835762d5add82f9cc60005"
+    ],
+    "preserved_evidence": []
+  },
+  "scope_distinction": true,
+  "reproducible": true,
+  "leakage_free": true,
+  "checks": {
+    "multi_artifact_source": true,
+    "shared_producer": true,
+    "multi_evidence": true,
+    "channel_A_blocks_A": true,
+    "channel_A_preserves_B": true,
+    "source_step_broader_scope": true,
+    "causal_cee_positive": true,
+    "negative_control_zero": true,
+    "no_leakage": true,
+    "reproducible": true
+  },
+  "status": "PASS",
+  "verdict": "STAGE 1.1-B PASS \u2014 READY FOR STAGE 2"
+}

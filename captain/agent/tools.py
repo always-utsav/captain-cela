@@ -19,6 +19,13 @@ import operator
 from datetime import UTC, datetime
 from typing import Any
 
+# Separator for multi-output tool results.  When a tool's execute()
+# returns a string containing this separator, the TracedAgent splits
+# the result into multiple artifacts, each linked to the same source
+# event.  This creates genuinely shared-source evidence channels in
+# the provenance graph.
+MULTI_OUTPUT_SEPARATOR = "|||"
+
 
 class Tool(abc.ABC):
     """Abstract base class for agent tools.

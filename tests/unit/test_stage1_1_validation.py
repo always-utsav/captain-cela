@@ -327,3 +327,207 @@ class TestLeakageRecheck:
         cf_result = ev(result.counterfactual_run)
         assert f_result is True  # Factual failed
         assert cf_result is False  # Counterfactual succeeded
+
+
+# ===================================================================
+# D. Stage 1.1-B: Genuine multi-artifact shared source
+# ===================================================================
+
+
+class TestMultiArtifactSharedSource:
+    """Stage 1.1-B: one source event produces multiple artifacts."""
+
+    def test_source_event_has_multiple_artifacts(self) -> None:
+        """Source TOOL_RESULT event must have >= 2 output_artifact_ids."""
+        with deterministic_ids(seed=42):
+            scenario = generate_shared_source(seed=42)
+
+        from captain.models.enums import EventType
+
+        # Find the data_source TOOL_RESULT event
+        source_evt = None
+        for evt in scenario.run.events:
+            if evt.event_type == EventType.TOOL_RESULT:
+                p = evt.payload if isinstance(evt.payload, dict) else {}
+                if p.get("tool_name") == "data_source":
+                    source_evt = evt
+                    break
+
+        assert source_evt is not None
+        assert len(source_evt.output_artifact_ids) >= 2, (
+            f"Source event must produce >= 2 artifacts, got {len(source_evt.output_artifact_ids)}"
+        )
+
+    def test_artifacts_share_producer(self) -> None:
+        """All source artifacts must share the same producer_event_id."""
+        with deterministic_ids(seed=42):
+            scenario = generate_shared_source(seed=42)
+
+        from captain.models.enums import EventType
+
+        source_evt = None
+        for evt in scenario.run.events:
+            if evt.event_type == EventType.TOOL_RESULT:
+                p = evt.payload if isinstance(evt.payload, dict) else {}
+                if p.get("tool_name") == "data_source":
+                    source_evt = evt
+                    break
+
+        art_by_id = {a.artifact_id: a for a in scenario.run.artifacts}
+        producers = set()
+        for aid in source_evt.output_artifact_ids:
+            art = art_by_id[aid]
+            assert art.producer_event_id is not None
+            producers.add(art.producer_event_id)
+
+        assert len(producers) == 1, (
+            f"All source artifacts must share one producer, got {producers}"
+        )
+
+    def test_shared_source_channel_intervention_preserves_sibling(self) -> None:
+        """Channel-A intervention preserves B in actual counterfactual."""
+        with deterministic_ids(seed=42):
+            scenario = generate_shared_source(seed=42)
+
+        causal_ids = set(scenario.ground_truth.causal_channel_ids)
+        causal = [c for c in scenario.candidates if c.intervention_id in causal_ids]
+        assert causal, "Must have causal candidates"
+
+        ci = causal[0]
+        intv = channel_to_intervention(ci, scenario.run, scenario.evidence_graph)
+        iset = InterventionSet(
+            baseline_run_id=scenario.run.run_id,
+            interventions=[intv],
+        )
+
+        result = CounterfactualReplayEngine().replay(scenario.run, iset)
+        assert result.status == ReplayStatus.SUCCESS
+        assert result.counterfactual_run is not None
+
+        # Collect counterfactual text
+        cf_text = ""
+        for evt in result.counterfactual_run.events:
+            if evt.payload:
+                cf_text += str(evt.payload)
+        for art in result.counterfactual_run.artifacts:
+            if art.value:
+                cf_text += str(art.value)
+
+        # A ("42") should be absent, B ("ok") should be present
+        assert "42" not in cf_text, "Artifact A must be blocked"
+        assert "ok" in cf_text.lower(), "Artifact B must survive"
+
+    def test_source_step_intervention_has_broader_scope(self) -> None:
+        """Source-step intervention affects BOTH A and B."""
+        with deterministic_ids(seed=42):
+            scenario = generate_shared_source(seed=42)
+
+        from captain.models.enums import EventType
+
+        # Find source TOOL_RESULT event
+        source_evt = None
+        for evt in scenario.run.events:
+            if evt.event_type == EventType.TOOL_RESULT:
+                p = evt.payload if isinstance(evt.payload, dict) else {}
+                if p.get("tool_name") == "data_source":
+                    source_evt = evt
+                    break
+
+        assert source_evt is not None
+
+        # Source-step intervention (whole event)
+        st_intv = Intervention(
+            intervention_type=InterventionType.TOOL_RESULT_OVERRIDE,
+            baseline_run_id=scenario.run.run_id,
+            target_id=source_evt.event_id,
+            replacement_value="",
+            description="Source-step block",
+        )
+        st_iset = InterventionSet(
+            baseline_run_id=scenario.run.run_id,
+            interventions=[st_intv],
+        )
+        st_result = CounterfactualReplayEngine().replay(scenario.run, st_iset)
+        assert st_result.status == ReplayStatus.SUCCESS
+        assert st_result.counterfactual_run is not None
+
+        # Collect text
+        st_text = ""
+        for evt in st_result.counterfactual_run.events:
+            if evt.payload:
+                st_text += str(evt.payload)
+        for art in st_result.counterfactual_run.artifacts:
+            if art.value:
+                st_text += str(art.value)
+
+        # BOTH A and B should be absent from LLM responses
+        # (propagation removes both "42" and "ok" from downstream)
+        assert "42" not in st_text, "Source-step must block A"
+        assert "ok" not in st_text.lower(), "Source-step must block B"
+
+    def test_channel_scope_strictly_narrower(self) -> None:
+        """Channel-A scope is strictly narrower than source-step scope."""
+        with deterministic_ids(seed=42):
+            scenario = generate_shared_source(seed=42)
+
+        from captain.models.enums import EventType
+
+        causal_ids = set(scenario.ground_truth.causal_channel_ids)
+        causal = [c for c in scenario.candidates if c.intervention_id in causal_ids]
+        assert causal
+
+        ci = causal[0]
+        ch_intv = channel_to_intervention(ci, scenario.run, scenario.evidence_graph)
+
+        # Channel-level: A blocked, B preserved
+        ch_result = CounterfactualReplayEngine().replay(
+            scenario.run,
+            InterventionSet(
+                baseline_run_id=scenario.run.run_id,
+                interventions=[ch_intv],
+            ),
+        )
+
+        # Source-step: find TOOL_RESULT event and block whole event
+        source_evt = None
+        for evt in scenario.run.events:
+            if evt.event_type == EventType.TOOL_RESULT:
+                p = evt.payload if isinstance(evt.payload, dict) else {}
+                if p.get("tool_name") == "data_source":
+                    source_evt = evt
+                    break
+
+        st_intv = Intervention(
+            intervention_type=InterventionType.TOOL_RESULT_OVERRIDE,
+            baseline_run_id=scenario.run.run_id,
+            target_id=source_evt.event_id,
+            replacement_value="",
+            description="Source-step block",
+        )
+        st_result = CounterfactualReplayEngine().replay(
+            scenario.run,
+            InterventionSet(
+                baseline_run_id=scenario.run.run_id,
+                interventions=[st_intv],
+            ),
+        )
+
+        # Channel: B preserved
+        def _text(run):
+            t = ""
+            for evt in run.events:
+                if evt.payload:
+                    t += str(evt.payload)
+            for art in run.artifacts:
+                if art.value:
+                    t += str(art.value)
+            return t.lower()
+
+        ch_text = _text(ch_result.counterfactual_run)
+        st_text = _text(st_result.counterfactual_run)
+
+        # Channel preserves B, source-step does not
+        ch_b = "ok" in ch_text
+        st_b = "ok" in st_text
+        assert ch_b is True, "Channel-level must preserve B"
+        assert st_b is False, "Source-step must block B"
