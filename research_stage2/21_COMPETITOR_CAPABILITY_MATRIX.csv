@@ -1,0 +1,14 @@
+System,Problem,Counterfactual_Replay,Causal_Intervention,Atomic_Unit,Provenance,Channel_Intervention,Multimodal,Cascade,Joint_Intervention,Cost_Aware,Ground_Truth,Real_LLM,Code_Available
+CELA,Failure attribution via evidence-flow intervention,Yes,Yes,Evidence-channel,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Not_evaluated
+Who&When / Who&When Pro,MAS culprit agent localization,Yes,Yes,Step/Agent,Partial,No,Yes,No,No,No,Yes,Yes,Yes
+AgenTracer,Tracing reasoning failures,Yes,Yes,Step/Agent,No,No,Not_reported,No,No,No,Yes,Yes,Yes
+CAR,Credit assignment,Yes,Yes,Step,No,No,No,No,No,No,Yes,Yes,Yes
+CausalFlow,Causal discovery and repair,Yes,Yes,Step,No,No,No,No,No,No,Yes,Yes,Yes
+CHIEF,Hierarchical failure diagnosis,Yes,Yes,Agent/Subtask/Step,Yes,No,No,No,No,No,Yes,Yes,Yes
+DoVer,Active debugging,Yes,Yes,State/Plan/Message,No,No,No,No,No,No,Yes,Yes,Yes
+AgentRx,Post-hoc behavior auditing,No,No,Step constraint,No,No,No,No,No,No,Yes,Yes,Yes
+RAFFLES,Agent trajectory evaluation,No,No,Step/Agent,No,No,No,No,No,No,Yes,Yes,Yes
+AgentProcessBench,Agent process benchmarking,No,No,Step,No,No,No,No,No,No,Yes,Yes,Yes
+SAFARI,Active log investigation,No,No,Step/Segment,No,No,No,No,No,No,Yes,Yes,Yes
+AGENTSCOPE,Neuro-symbolic fault localization,No,No,Graph vertex,No,No,No,No,No,No,Yes,Yes,Yes
+AgenticRAG-FP,Fault injection in RAG,Yes,Partial,Hop/Retrieval-step,Yes,No,No,No,No,No,Yes,Yes,Yes

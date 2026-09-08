@@ -37,3 +37,20 @@ research_results/raw/
 research_results/processed/
 research_results/logs/
 *.log
+
+# Stage 2: Secrets / API keys — NEVER COMMIT
+.env
+.env.local
+.env.production
+.env.*.local
+!.env.example
+secrets/
+*.key
+*.pem
+*.secret
+
+# Stage 2: Generated research data (large, reproducible)
+research/raw/
+research/processed/
+research/figures/*.png
+research/figures/*.pdf

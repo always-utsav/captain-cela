@@ -1,0 +1,170 @@
+[
+  {
+    "system": "CELA",
+    "paper_ref": "CELA Proposed",
+    "claims": [
+      {
+        "claim": "Evidence-channel intervention enables finer causal localization than step-level in branching/shared-source architectures.",
+        "section": "Evaluation",
+        "evidence": "Comparison against step-level baselines on synthetic and real graphs.",
+        "confidence": "High"
+      },
+      {
+        "claim": "Joint set-level evidence-channel intervention captures multi-channel interaction effects.",
+        "section": "Experiments",
+        "evidence": "Isolation of failure subsets using joint ablation.",
+        "confidence": "High"
+      },
+      {
+        "claim": "Cost-aware greedy cascade prevention optimizes evaluation under budget constraints.",
+        "section": "Experiments",
+        "evidence": "Performance under budget constraints vs random/unconstrained.",
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "system": "Who&When / Who&When Pro",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Identifies MAS culprit agents via prefix-replay injection.",
+        "section": "Methodology",
+        "evidence": "Empirical results on MAS datasets.",
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "system": "AgenTracer",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Uses RL-distilled models for counterfactual tracing.",
+        "section": "Methodology",
+        "evidence": "Performance vs baselines.",
+        "confidence": "Medium"
+      }
+    ]
+  },
+  {
+    "system": "CAR",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Applies SCM do-calculus on state-action pairs for credit assignment.",
+        "section": "Methodology",
+        "evidence": "MC Shapley credit scores.",
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "system": "CausalFlow",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Minimal contrastive repair via step CRS.",
+        "section": "Experiments",
+        "evidence": "Repair success rates.",
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "system": "CHIEF",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Hierarchical causal graph OTAR and virtual oracle backtracking.",
+        "section": "Architecture",
+        "evidence": "Improved fault diagnosis at multiple scales.",
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "system": "DoVer",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Active do-then-verify debugging.",
+        "section": "Methodology",
+        "evidence": "Localization accuracy.",
+        "confidence": "Medium"
+      }
+    ]
+  },
+  {
+    "system": "AgentRx",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Constraint-based post-hoc auditing.",
+        "section": "Methodology",
+        "evidence": "Constraint violation detection.",
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "system": "RAFFLES",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Multi-evaluator LLM judge debate without replay.",
+        "section": "Methodology",
+        "evidence": "Correlation with human judgments.",
+        "confidence": "Medium"
+      }
+    ]
+  },
+  {
+    "system": "AgentProcessBench",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Ternary step annotation for process evaluation.",
+        "section": "Methodology",
+        "evidence": "Benchmark baseline scores.",
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "system": "SAFARI",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Active log investigation using STM.",
+        "section": "Methodology",
+        "evidence": "Fault localization in logs.",
+        "confidence": "Medium"
+      }
+    ]
+  },
+  {
+    "system": "AGENTSCOPE",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Neuro-symbolic fault localization via ReAG.",
+        "section": "Methodology",
+        "evidence": "Localization performance on graph vertices.",
+        "confidence": "High"
+      }
+    ]
+  },
+  {
+    "system": "AgenticRAG-FP",
+    "paper_ref": "Unknown",
+    "claims": [
+      {
+        "claim": "Certified fault injection at retrieval hops.",
+        "section": "Methodology",
+        "evidence": "Fault injection robustness.",
+        "confidence": "High"
+      }
+    ]
+  }
+]

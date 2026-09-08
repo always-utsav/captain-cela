@@ -11,25 +11,21 @@ from __future__ import annotations
 import json
 import sys
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, ".")
 
 from captain.agent.tools import create_default_tool_registry
-from captain.analysis.cascade import CascadeEstimator, CostModel, GreedyCascadeSelector
 from captain.analysis.estimator import CEEEstimator, channel_to_intervention
 from captain.benchmarks.baselines import (
-    CELAMethod,
-    CostAwareBaseline,
     GraphStructuralBaseline,
     ProvenanceOnlyBaseline,
     RandomBaseline,
 )
-from captain.benchmarks.runner import BenchmarkRunner, MetricEvaluator
+from captain.benchmarks.runner import MetricEvaluator
 from captain.benchmarks.scenarios import (
-    BenchmarkScenario,
     generate_cascade,
     generate_complementary,
     generate_cost_asymmetric,
@@ -42,15 +38,12 @@ from captain.intervention.model import Intervention, InterventionSet, Interventi
 from captain.models.ids import deterministic_ids
 from captain.replay.engine import CounterfactualReplayEngine
 
-
 # ===================================================================
 # Step-level baseline: intervene on the MEDIATING event
 # ===================================================================
 
 
-def step_level_intervention(
-    channel, baseline_run, evidence_graph=None
-) -> Intervention:
+def step_level_intervention(channel, baseline_run, evidence_graph=None) -> Intervention:
     """Create a STEP-LEVEL intervention (entire event output replaced).
 
     Unlike channel_to_intervention which targets the SOURCE evidence's
@@ -202,17 +195,19 @@ def run_shared_source_experiment(
 
             ch_ms = (time.perf_counter_ns() - t0) / 1e6
 
-            results.append({
-                "experiment": "shared_source",
-                "method": "channel_level",
-                "seed": seed,
-                "candidate_id": ci.intervention_id,
-                "candidate_label": label,
-                "cee": ch_cee,
-                "prevented": not ch_failed if ch_err is None else False,
-                "runtime_ms": ch_ms,
-                "error": ch_err,
-            })
+            results.append(
+                {
+                    "experiment": "shared_source",
+                    "method": "channel_level",
+                    "seed": seed,
+                    "candidate_id": ci.intervention_id,
+                    "candidate_label": label,
+                    "cee": ch_cee,
+                    "prevented": not ch_failed if ch_err is None else False,
+                    "runtime_ms": ch_ms,
+                    "error": ch_err,
+                }
+            )
 
             # B. Step-level CEE
             t0 = time.perf_counter_ns()
@@ -238,17 +233,19 @@ def run_shared_source_experiment(
 
             st_ms = (time.perf_counter_ns() - t0) / 1e6
 
-            results.append({
-                "experiment": "shared_source",
-                "method": "step_level",
-                "seed": seed,
-                "candidate_id": ci.intervention_id,
-                "candidate_label": label,
-                "cee": st_cee,
-                "prevented": not st_failed if st_err is None else False,
-                "runtime_ms": st_ms,
-                "error": st_err,
-            })
+            results.append(
+                {
+                    "experiment": "shared_source",
+                    "method": "step_level",
+                    "seed": seed,
+                    "candidate_id": ci.intervention_id,
+                    "candidate_label": label,
+                    "cee": st_cee,
+                    "prevented": not st_failed if st_err is None else False,
+                    "runtime_ms": st_ms,
+                    "error": st_err,
+                }
+            )
 
     return results
 
@@ -290,25 +287,29 @@ def run_negative_controls(seeds: list[int]) -> list[dict]:
                     cee = 0.0
                     still_failed = True
 
-                results.append({
-                    "experiment": "negative_control",
-                    "seed": seed,
-                    "candidate_id": ci.intervention_id,
-                    "expected_cee": 0.0,
-                    "actual_cee": cee,
-                    "false_positive": cee > 0,
-                    "error": None,
-                })
+                results.append(
+                    {
+                        "experiment": "negative_control",
+                        "seed": seed,
+                        "candidate_id": ci.intervention_id,
+                        "expected_cee": 0.0,
+                        "actual_cee": cee,
+                        "false_positive": cee > 0,
+                        "error": None,
+                    }
+                )
             except Exception as e:
-                results.append({
-                    "experiment": "negative_control",
-                    "seed": seed,
-                    "candidate_id": ci.intervention_id,
-                    "expected_cee": 0.0,
-                    "actual_cee": None,
-                    "false_positive": None,
-                    "error": str(e),
-                })
+                results.append(
+                    {
+                        "experiment": "negative_control",
+                        "seed": seed,
+                        "candidate_id": ci.intervention_id,
+                        "expected_cee": 0.0,
+                        "actual_cee": None,
+                        "false_positive": None,
+                        "error": str(e),
+                    }
+                )
 
     return results
 
@@ -344,16 +345,18 @@ def run_replay_convergence(seed: int = 42) -> list[dict]:
         )
         cee_result = estimator.estimate(ci, ci)
 
-        results.append({
-            "experiment": "replay_convergence",
-            "seed": seed,
-            "n_trials": n_trials,
-            "cee": cee_result.cee,
-            "ci_lower": cee_result.ci_lower,
-            "ci_upper": cee_result.ci_upper,
-            "ci_width": cee_result.ci_upper - cee_result.ci_lower,
-            "num_valid_trials": cee_result.num_valid_trials,
-        })
+        results.append(
+            {
+                "experiment": "replay_convergence",
+                "seed": seed,
+                "n_trials": n_trials,
+                "cee": cee_result.cee,
+                "ci_lower": cee_result.ci_lower,
+                "ci_upper": cee_result.ci_upper,
+                "ci_width": cee_result.ci_upper - cee_result.ci_lower,
+                "num_valid_trials": cee_result.num_valid_trials,
+            }
+        )
 
     return results
 
@@ -379,10 +382,7 @@ def run_seed_robustness(seeds: list[int]) -> list[dict]:
 
         # Use first causal candidate
         causal_ids = set(scenario.ground_truth.causal_channel_ids)
-        causal_candidates = [
-            ci for ci in scenario.candidates
-            if ci.intervention_id in causal_ids
-        ]
+        causal_candidates = [ci for ci in scenario.candidates if ci.intervention_id in causal_ids]
 
         if not causal_candidates:
             continue
@@ -397,16 +397,18 @@ def run_seed_robustness(seeds: list[int]) -> list[dict]:
         )
         cee_result = estimator.estimate(ci, ci)
 
-        results.append({
-            "experiment": "seed_robustness",
-            "seed": seed,
-            "family": "BF-A",
-            "candidate_id": ci.intervention_id,
-            "cee": cee_result.cee,
-            "ci_lower": cee_result.ci_lower,
-            "ci_upper": cee_result.ci_upper,
-            "num_valid_trials": cee_result.num_valid_trials,
-        })
+        results.append(
+            {
+                "experiment": "seed_robustness",
+                "seed": seed,
+                "family": "BF-A",
+                "candidate_id": ci.intervention_id,
+                "cee": cee_result.cee,
+                "ci_lower": cee_result.ci_lower,
+                "ci_upper": cee_result.ci_upper,
+                "num_valid_trials": cee_result.num_valid_trials,
+            }
+        )
 
     return results
 
@@ -458,42 +460,56 @@ def run_benchmark_smoke(seeds: list[int]) -> list[dict]:
                         metric_eval = MetricEvaluator()
                         metrics = metric_eval.compute(selection, scenario.ground_truth)
 
-                        results.append({
-                            "experiment": "benchmark_smoke",
-                            "seed": seed,
-                            "family": family,
-                            "method": method_name,
-                            "f1": metrics.attribution.causal_f1 if metrics.attribution else None,
-                            "recall_at_1": metrics.attribution.recall_at_1 if metrics.attribution else None,
-                            "precision": metrics.attribution.causal_precision if metrics.attribution else None,
-                            "prevention_rate": metrics.prevention.failure_prevention_rate if metrics.prevention else None,
-                            "error": None,
-                        })
+                        results.append(
+                            {
+                                "experiment": "benchmark_smoke",
+                                "seed": seed,
+                                "family": family,
+                                "method": method_name,
+                                "f1": metrics.attribution.causal_f1
+                                if metrics.attribution
+                                else None,
+                                "recall_at_1": metrics.attribution.recall_at_1
+                                if metrics.attribution
+                                else None,
+                                "precision": metrics.attribution.causal_precision
+                                if metrics.attribution
+                                else None,
+                                "prevention_rate": metrics.prevention.failure_prevention_rate
+                                if metrics.prevention
+                                else None,
+                                "error": None,
+                            }
+                        )
                     except Exception as e:
-                        results.append({
-                            "experiment": "benchmark_smoke",
-                            "seed": seed,
-                            "family": family,
-                            "method": method_name,
-                            "f1": None,
-                            "recall_at_1": None,
-                            "precision": None,
-                            "prevention_rate": None,
-                            "error": str(e),
-                        })
+                        results.append(
+                            {
+                                "experiment": "benchmark_smoke",
+                                "seed": seed,
+                                "family": family,
+                                "method": method_name,
+                                "f1": None,
+                                "recall_at_1": None,
+                                "precision": None,
+                                "prevention_rate": None,
+                                "error": str(e),
+                            }
+                        )
 
             except Exception as e:
-                results.append({
-                    "experiment": "benchmark_smoke",
-                    "seed": seed,
-                    "family": family,
-                    "method": "SCENARIO_GENERATION",
-                    "f1": None,
-                    "recall_at_1": None,
-                    "precision": None,
-                    "prevention_rate": None,
-                    "error": str(e),
-                })
+                results.append(
+                    {
+                        "experiment": "benchmark_smoke",
+                        "seed": seed,
+                        "family": family,
+                        "method": "SCENARIO_GENERATION",
+                        "f1": None,
+                        "recall_at_1": None,
+                        "precision": None,
+                        "prevention_rate": None,
+                        "error": str(e),
+                    }
+                )
 
     return results
 
@@ -564,8 +580,12 @@ def main():
     # Shared source summary
     print("\n--- SHARED SOURCE (PRIMARY NOVELTY) ---")
     for method in ["channel_level", "step_level"]:
-        causal = [r for r in ss_results if r["method"] == method and r["candidate_label"] == "causal"]
-        irrel = [r for r in ss_results if r["method"] == method and r["candidate_label"] == "irrelevant"]
+        causal = [
+            r for r in ss_results if r["method"] == method and r["candidate_label"] == "causal"
+        ]
+        irrel = [
+            r for r in ss_results if r["method"] == method and r["candidate_label"] == "irrelevant"
+        ]
 
         causal_prevented = sum(1 for r in causal if r["prevented"])
         irrel_prevented = sum(1 for r in irrel if r["prevented"])
@@ -583,7 +603,9 @@ def main():
     # Replay convergence
     print("\n--- REPLAY CONVERGENCE ---")
     for r in rc_results:
-        print(f"  n={r['n_trials']:3d}: CEE={r['cee']:.3f} CI=[{r['ci_lower']:.3f}, {r['ci_upper']:.3f}] width={r['ci_width']:.3f}")
+        print(
+            f"  n={r['n_trials']:3d}: CEE={r['cee']:.3f} CI=[{r['ci_lower']:.3f}, {r['ci_upper']:.3f}] width={r['ci_width']:.3f}"
+        )
 
     # Seed robustness
     print("\n--- SEED ROBUSTNESS ---")
@@ -591,7 +613,7 @@ def main():
     if cees:
         mean_cee = sum(cees) / len(cees)
         var_cee = sum((c - mean_cee) ** 2 for c in cees) / len(cees)
-        std_cee = var_cee ** 0.5
+        std_cee = var_cee**0.5
         cv = std_cee / mean_cee if mean_cee > 0 else float("inf")
         print(f"  CEE: mean={mean_cee:.3f} std={std_cee:.3f} CV={cv:.3f}")
         for r in sr_results:

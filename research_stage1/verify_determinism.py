@@ -4,7 +4,6 @@ Run the same benchmark scenario 3 times with deterministic IDs
 and verify that outputs are identical.
 """
 
-import json
 import sys
 
 sys.path.insert(0, ".")
@@ -70,7 +69,9 @@ def main():
     r_nondeterministic1 = run_nondeterministic(42)
     r_nondeterministic2 = run_nondeterministic(42)
     nd_match = r_nondeterministic1["run_id"] == r_nondeterministic2["run_id"]
-    print(f"\nNon-deterministic control: IDs {'SAME' if nd_match else 'DIFFERENT'} (expected: DIFFERENT)")
+    print(
+        f"\nNon-deterministic control: IDs {'SAME' if nd_match else 'DIFFERENT'} (expected: DIFFERENT)"
+    )
 
     return 0 if all_match and not nd_match else 1
 

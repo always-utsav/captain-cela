@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 
 from captain.adapters.llm import MockLLMProvider
 from captain.agent.agent import Agent
@@ -474,6 +474,49 @@ def create_app(store_dir: Path | None = None) -> Flask:
                 result.model_dump_json() if hasattr(result, "model_dump_json") else str(result)
             )
         return jsonify({"path": str(out_path)})
+
+    # --- Stage 2 Research Routes ---
+    @app.route('/research')
+    def research_page() -> str:
+        return render_template("research.html")
+
+    def _load_research_json(filename: str) -> Any:
+        filepath = Path(__file__).parent.parent.parent / "research" / "raw" / filename
+        try:
+            with open(filepath, encoding="utf-8") as f:
+                return json.load(f)
+        except UnicodeDecodeError:
+            with open(filepath, encoding="cp1252") as f:
+                return json.load(f)
+
+    @app.route('/api/research/campaign')
+    def research_campaign() -> Any:
+        return jsonify(_load_research_json("campaign_full.json"))
+
+    @app.route('/api/research/granularity')
+    def research_granularity() -> Any:
+        return jsonify(_load_research_json("granularity_experiment.json"))
+
+    @app.route('/api/research/negative_controls')
+    def research_negative_controls() -> Any:
+        return jsonify(_load_research_json("negative_controls.json"))
+
+    @app.route('/api/research/convergence')
+    def research_convergence() -> Any:
+        return jsonify(_load_research_json("replay_convergence.json"))
+
+    @app.route('/api/research/real_llm')
+    def research_real_llm() -> Any:
+        return jsonify(_load_research_json("real_llm_validation.json"))
+
+    @app.route('/api/research/claims')
+    def research_claims() -> Any:
+        return jsonify(_load_research_json("claim_registry.json"))
+
+    @app.route('/api/research/figures/<name>')
+    def research_figures(name: str) -> Any:
+        figs_dir = Path(__file__).parent.parent.parent / "research" / "figures"
+        return send_from_directory(str(figs_dir), name)
 
     return app
 

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTAIN/CELA - Stage 2 Research</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --panel: #16213e;
+            --accent: #0f3460;
+            --text: #e0e0e0;
+            --highlight: #e94560;
+            --success: #4caf50;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        code, pre {
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+        }
+        pre {
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        nav {
+            background-color: var(--panel);
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid var(--accent);
+            flex-wrap: wrap;
+        }
+        button.tab-btn {
+            background: none;
+            border: 2px solid transparent;
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        button.tab-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        button.tab-btn.active {
+            border-color: var(--highlight);
+            background: var(--accent);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .panel {
+            background-color: var(--panel);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        /* Story Mode */
+        .story-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .story-step {
+            opacity: 0.3;
+            transform: translateX(-20px);
+            transition: all 0.5s;
+            padding: 1rem;
+            background: var(--accent);
+            border-radius: 4px;
+        }
+        .story-step.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .story-controls {
+            margin-bottom: 1rem;
+        }
+        .btn {
+            background: var(--highlight);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Granularity */
+        .granularity-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: #0f1524;
+            border-radius: 8px;
+            margin: 2rem 0;
+            position: relative;
+        }
+        .node {
+            padding: 1rem;
+            border-radius: 8px;
+            background: var(--accent);
+            text-align: center;
+            z-index: 2;
+            border: 2px solid #fff;
+        }
+        .node.source { background: #333; }
+        .node.evidence { margin: 1rem 0; }
+        
+        .arrows {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 2rem;
+        }
+        .arrow {
+            width: 100px;
+            height: 2px;
+            background: #fff;
+            position: relative;
+            margin: 2.5rem 0;
+            transition: all 0.3s;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            border-left: 10px solid #fff;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+        .arrow.blocked {
+            background: var(--highlight);
+        }
+        .arrow.blocked::after {
+            border-left-color: var(--highlight);
+        }
+        .status-icon {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .status-icon.blocked { color: var(--highlight); }
+        .status-icon.preserved { color: var(--success); }
+        
+        .evidence-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-box {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-val {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--highlight);
+        }
+
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+        img.figure {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            background: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.5rem;
+            border: 1px solid var(--accent);
+            text-align: left;
+        }
+        th { background: var(--accent); }
+
+        /* General layout */
+        .mode-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <button class="tab-btn active" onclick="showTab('story')">Story Mode</button>
+        <button class="tab-btn" onclick="showTab('granularity')">Granularity Demo</button>
+        <button class="tab-btn" onclick="showTab('dashboard')">Results Dashboard</button>
+        <button class="tab-btn" onclick="showTab('research')">Research Mode</button>
+        <button class="tab-btn" onclick="showTab('simple')">Simple Mode</button>
+    </nav>
+
+    <div class="container">
+        
+        <!-- Tab 1: Story Mode -->
+        <div id="story" class="tab-content active">
+            <h2>Causal Evidence Story Walkthrough</h2>
+            <div class="story-controls">
+                <button class="btn" onclick="nextStoryStep()">Next Step</button>
+                <button class="btn" onclick="resetStory()">Reset</button>
+            </div>
+            <div class="story-timeline">
+                <div class="story-step" id="step-1">1. <strong>Agent receives task:</strong> The user gives the agent a complex goal.</div>
+                <div class="story-step" id="step-2">2. <strong>Tool called:</strong> The agent calls a tool, which produces raw output evidence.</div>
+                <div class="story-step" id="step-3">3. <strong>Evidence Split:</strong> The evidence naturally splits into multiple usage channels (e.g., Channel A goes to reasoning, Channel B goes to a file).</div>
+                <div class="story-step" id="step-4">4. <strong>Failure Injection:</strong> Channel A carries a failure-inducing keyword that confuses the agent.</div>
+                <div class="story-step" id="step-5">5. <strong>CELA Detection:</strong> Our method (CELA) correctly identifies that Channel A is the causal path.</div>
+                <div class="story-step" id="step-6">6. <strong>Intervention:</strong> A channel-level intervention specifically blocks Channel A but preserves Channel B.</div>
+                <div class="story-step" id="step-7">7. <strong>Success!</strong> The failure is prevented, proving causality at the channel level.</div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Granularity -->
+        <div id="granularity" class="tab-content">
+            <h2>Intervention Granularity Demo (Most Important)</h2>
+            <p>Compare intervening at the source event vs the specific evidence channel.</p>
+            
+            <div class="mode-toggle">
+                <button class="btn" id="btn-chan" onclick="setGranularityMode('channel')">Channel Intervention (CELA)</button>
+                <button class="btn" id="btn-src" style="background:#555;" onclick="setGranularityMode('source')">Source-Event Intervention</button>
+            </div>
+
+            <div class="granularity-diagram">
+                <div class="node source">
+                    Source Node<br>
+                    <small>(Tool Result)</small>
+                </div>
+                <div class="arrows">
+                    <div class="arrow" id="arrow-a">
+                        <div class="status-icon" id="icon-a"></div>
+                    </div>
+                    <div class="arrow" id="arrow-b">
+                        <div class="status-icon" id="icon-b"></div>
+                    </div>
+                </div>
+                <div class="evidence-col">
+                    <div class="node evidence" style="border-color:var(--highlight)">Evidence A (Causal)</div>
+                    <div class="node evidence" style="border-color:var(--success)">Evidence B (Benign)</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div>CEE (Causal Effect)</div>
+                    <div class="stat-val" id="g-cee">-</div>
+                </div>
+                <div class="stat-box">
+                    <div>Affected Evidence</div>
+                    <div class="stat-val" id="g-affected">-</div>
+                </div>
+                <div class="stat-box">
+                    <div>Preserved Evidence</div>
+                    <div class="stat-val" id="g-preserved">-</div>
+                </div>
+                <div class="stat-box">
+                    <div>Collateral Damage</div>
+                    <div class="stat-val" id="g-collateral">-</div>
+                </div>
+            </div>
+            
+            <div class="panel" style="margin-top:2rem">
+                <h3>Insights from frozen data:</h3>
+                <p id="g-insight">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Tab 3: Dashboard -->
+        <div id="dashboard" class="tab-content">
+            <h2>Campaign Results Dashboard</h2>
+            <div class="dashboard-grid">
+                <div class="panel">
+                    <h3>Attribution by Family</h3>
+                    <img class="figure" src="/api/research/figures/fig_attribution.svg" alt="Attribution F1 by Family" onerror="this.src='/api/research/figures/fig_attribution.png'">
+                </div>
+                <div class="panel">
+                    <h3>Collateral Damage & Granularity</h3>
+                    <img class="figure" src="/api/research/figures/fig_granularity.svg" alt="Granularity" onerror="this.src='/api/research/figures/fig_granularity.png'">
+                </div>
+                <div class="panel">
+                    <h3>Replay Convergence</h3>
+                    <img class="figure" src="/api/research/figures/fig_convergence.svg" alt="Replay Convergence" onerror="this.src='/api/research/figures/fig_convergence.png'">
+                </div>
+                <div class="panel">
+                    <h3>Negative Controls</h3>
+                    <table id="nc-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>False Positive Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td colspan="2">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Research Mode -->
+        <div id="research" class="tab-content">
+            <h2>Full Technical Detail</h2>
+            <div class="dashboard-grid">
+                <div class="panel">
+                    <h3>Campaign Data</h3>
+                    <pre id="raw-campaign">Loading...</pre>
+                </div>
+                <div class="panel">
+                    <h3>Claim Registry</h3>
+                    <pre id="raw-claims">Loading...</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Simple Mode -->
+        <div id="simple" class="tab-content">
+            <h2>What does this research mean?</h2>
+            <div class="panel">
+                <h3>What happened?</h3>
+                <p>An AI agent used tools to complete tasks. Sometimes, it failed because a specific piece of information (evidence) confused it.</p>
+                
+                <h3>What evidence moved?</h3>
+                <p>Information flows through the system in specific pathways or "channels". We traced exactly where every piece of data went.</p>
+                
+                <h3>What changed?</h3>
+                <p>We tested if we could fix the failures. But instead of just deleting an entire tool's result (which might break other things), we only blocked the specific "channel" that caused the problem.</p>
+                
+                <h3>Why it matters?</h3>
+                <p>This allows us to debug AI agents with surgical precision. Our data proves that "provenance != causality". Just because data came from a bad tool doesn't mean all of its pathways caused the failure. We only label something "causal" when supported by intervention evidence.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Tab switching
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // Story Mode logic
+        let currentStep = 0;
+        function nextStoryStep() {
+            currentStep++;
+            if(currentStep <= 7) {
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+            }
+        }
+        function resetStory() {
+            currentStep = 0;
+            for(let i=1; i<=7; i++) {
+                document.getElementById(`step-${i}`).classList.remove('active');
+            }
+            nextStoryStep();
+        }
+        resetStory();
+
+        // Granularity Logic
+        let granData = [];
+        
+        async function loadData() {
+            try {
+                // Load granularity
+                const resGran = await fetch('/api/research/granularity');
+                granData = await resGran.json();
+                if(granData.length > 0) {
+                    setGranularityMode('channel');
+                }
+
+                // Load negative controls for dashboard
+                const resNC = await fetch('/api/research/negative_controls');
+                const ncData = await resNC.json();
+                let tbody = '';
+                // Assume structure: [{method, fpr}] or similar based on JSON
+                if(Array.isArray(ncData)) {
+                    ncData.forEach(r => {
+                        tbody += `<tr><td>${r.method || r.family || 'Method'}</td><td>${r.fpr !== undefined ? r.fpr : JSON.stringify(r)}</td></tr>`;
+                    });
+                } else if(ncData.results) {
+                    ncData.results.forEach(r => {
+                        tbody += `<tr><td>${r.method}</td><td>${r.metrics?.false_positive_rate || 0}</td></tr>`;
+                    });
+                } else {
+                    tbody = `<tr><td colspan="2">Loaded ${Object.keys(ncData).length} items</td></tr>`;
+                }
+                document.querySelector('#nc-table tbody').innerHTML = tbody;
+
+                // Load campaign and claims for research mode
+                const resCamp = await fetch('/api/research/campaign');
+                const campData = await resCamp.json();
+                document.getElementById('raw-campaign').textContent = JSON.stringify(campData, null, 2).substring(0, 2000) + '\n... (truncated)';
+
+                const resClaims = await fetch('/api/research/claims');
+                const claimsData = await resClaims.json();
+                document.getElementById('raw-claims').textContent = JSON.stringify(claimsData, null, 2);
+                
+            } catch (e) {
+                console.error("Failed to load API data", e);
+            }
+        }
+
+        function setGranularityMode(mode) {
+            if(!granData.length) return;
+            const item = granData[0]; // use first item for demo
+            
+            const btnChan = document.getElementById('btn-chan');
+            const btnSrc = document.getElementById('btn-src');
+            const arrA = document.getElementById('arrow-a');
+            const arrB = document.getElementById('arrow-b');
+            const iconA = document.getElementById('icon-a');
+            const iconB = document.getElementById('icon-b');
+            
+            let stats;
+
+            if(mode === 'channel') {
+                btnChan.style.background = 'var(--highlight)';
+                btnSrc.style.background = '#555';
+                stats = item.channel_intervention;
+                
+                // Visuals
+                arrA.className = 'arrow blocked';
+                iconA.className = 'status-icon blocked';
+                iconA.innerHTML = '✖';
+                
+                arrB.className = 'arrow';
+                iconB.className = 'status-icon preserved';
+                iconB.innerHTML = '✔';
+                
+                document.getElementById('g-insight').textContent = "Notice how the channel intervention surgically blocks the causal evidence (A) while preserving the benign collateral evidence (B). This requires our fine-grained representation.";
+            } else {
+                btnChan.style.background = '#555';
+                btnSrc.style.background = 'var(--highlight)';
+                stats = item.source_event_intervention;
+                
+                // Visuals
+                arrA.className = 'arrow blocked';
+                iconA.className = 'status-icon blocked';
+                iconA.innerHTML = '✖';
+                
+                arrB.className = 'arrow blocked';
+                iconB.className = 'status-icon blocked';
+                iconB.innerHTML = '✖';
+                
+                document.getElementById('g-insight').textContent = "The source-event intervention blocks everything stemming from the tool call. It removes the cause, but destroys benign collateral data, inflating impact.";
+            }
+
+            document.getElementById('g-cee').textContent = stats.CEE?.toFixed(2) || '0.00';
+            document.getElementById('g-affected').textContent = stats.affected_evidence || 0;
+            document.getElementById('g-preserved').textContent = stats.preserved_evidence || 0;
+            document.getElementById('g-collateral').textContent = stats.collateral || 0;
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>

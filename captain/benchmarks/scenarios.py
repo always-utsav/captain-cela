@@ -57,6 +57,10 @@ class CausalMechanism(enum.StrEnum):
     DISTRACTOR = "distractor"
     CASCADE = "cascade"
     COST_ASYMMETRIC = "cost_asymmetric"
+    BRANCHING = "branching"
+    CONVERGENT = "convergent"
+    ROOT_VS_SYMPTOM = "root_vs_symptom"
+    DOWNSTREAM_REPAIR = "downstream_repair"
 
 
 class CausalMechanismSpec(BaseModel):
@@ -927,6 +931,425 @@ def generate_shared_source(
     return scenario
 
 
+# ===================================================================
+# BF-H: Branching — one evidence creates N descendants
+# ===================================================================
+
+
+def generate_branching(
+    *,
+    seed: int = 42,
+    failure_keyword: str = "42",
+) -> BenchmarkScenario:
+    """BF-H: Branching scenario.
+
+    One source tool produces evidence that branches into multiple
+    downstream reasoning pathways.  One branch leads to failure,
+    others are benign.
+
+    Structure::
+
+        calculator("42")
+            |
+        reasoning_1 ("The answer is 42")
+            |
+            +--- tool_a("42") ---> failure branch
+            |
+            +--- tool_b("ok") ---> benign branch
+
+    The causal origin is calculator. tool_a propagates the failure
+    keyword. tool_b is a benign sibling descendant.
+
+    Tests: whether CELA can identify the causal branch among
+    multiple descendants from one source.
+    """
+    responses = [
+        (
+            "1. [TOOL:calculator] Compute\n"
+            "2. [TOOL:tool_a] Process result A\n"
+            "3. [TOOL:tool_b] Process result B\n"
+            "4. Summarise"
+        ),
+        f"Calculator returned {failure_keyword}. "
+        f"Tool A confirms {failure_keyword}, Tool B says ok.",
+        f"Result: {failure_keyword}, secondary ok.",
+    ]
+
+    reg = ToolRegistry()
+    reg.register(FixedValueTool("calculator", failure_keyword))
+    reg.register(FixedValueTool("tool_a", failure_keyword))
+    reg.register(FixedValueTool("tool_b", "ok"))
+
+    run = _execute_scenario(responses, "Compute and branch", tool_registry=reg)
+    graph = _build_graph(run)
+
+    failure = Failure(
+        run_id=run.run_id,
+        failure_type=FailureType.TASK_FAILURE,
+        description="Branching: failure keyword propagated through branch A",
+        failure_event_id=run.events[-1].event_id,
+    )
+
+    all_interventions = _get_tool_channel_interventions(run, graph, failure)
+    calc_chs = _find_channels_by_tool(run, graph, all_interventions, "calculator")
+    a_chs = _find_channels_by_tool(run, graph, all_interventions, "tool_a")
+    b_chs = _find_channels_by_tool(run, graph, all_interventions, "tool_b")
+
+    origin_ids = [ci.intervention_id for ci in calc_chs]
+    prop_ids = [ci.intervention_id for ci in a_chs]
+    benign_ids = [ci.intervention_id for ci in b_chs]
+    causal_ids = origin_ids + prop_ids
+
+    mechanism = CausalMechanismSpec(
+        mechanism=CausalMechanism.BRANCHING,
+        failure_keywords=[failure_keyword],
+        keyword_logic="any",
+        causal_tool_names=["calculator", "tool_a"],
+        distractor_tool_names=["tool_b"],
+    )
+    evaluator = _build_keyword_evaluator([failure_keyword], "any")
+
+    ground_truth = ScenarioGroundTruth(
+        scenario_id=f"bf_h_{seed}",
+        family="BF-H",
+        seed=seed,
+        mechanism=mechanism,
+        causal_channel_ids=causal_ids,
+        irrelevant_channel_ids=benign_ids,
+        causal_origin_ids=origin_ids,
+        propagation_channel_ids=prop_ids,
+        failure_actuator_ids=prop_ids if prop_ids else origin_ids,
+        required_prevention_sets=[origin_ids] if origin_ids else [],
+        factual_outcome=evaluator(run),
+        single_intervention_outcomes={
+            **dict.fromkeys(origin_ids, False),
+            **dict.fromkeys(prop_ids, False),
+            **dict.fromkeys(benign_ids, True),
+        },
+    )
+
+    scenario = BenchmarkScenario(
+        scenario_id=ground_truth.scenario_id,
+        family="BF-H",
+        seed=seed,
+        run=run,
+        evidence_graph=graph,
+        failure=failure,
+        candidates=all_interventions,
+        ground_truth=ground_truth,
+    )
+    scenario._evaluator = evaluator  # type: ignore[attr-defined]
+    return scenario
+
+
+# ===================================================================
+# BF-I: Convergent — multiple pathways merge into one
+# ===================================================================
+
+
+def generate_convergent(
+    *,
+    seed: int = 42,
+    failure_keyword: str = "42",
+) -> BenchmarkScenario:
+    """BF-I: Convergent scenario.
+
+    Multiple independent evidence pathways converge into one
+    downstream reasoning state.
+
+    Structure::
+
+        calculator("42") ---+
+                             |---> reasoning ---> output (failure)
+        echo("hello")    ---+
+
+    Both tools contribute to the final reasoning.  Only calculator
+    carries the failure keyword.  The convergence means both are
+    upstream of the failure, but only one is causal.
+
+    Tests: whether CELA correctly identifies the causal convergent
+    path vs the benign convergent path.
+    """
+    responses = [
+        (
+            "1. [TOOL:calculator] Compute\n"
+            "2. [TOOL:echo] Greet\n"
+            "3. Summarise"
+        ),
+        f"Calculator returned {failure_keyword} and echo said hello.",
+        f"Combined result: {failure_keyword}, hello.",
+    ]
+
+    reg = ToolRegistry()
+    reg.register(FixedValueTool("calculator", failure_keyword))
+    reg.register(FixedValueTool("echo", "hello"))
+
+    run = _execute_scenario(responses, "Compute and greet", tool_registry=reg)
+    graph = _build_graph(run)
+
+    failure = Failure(
+        run_id=run.run_id,
+        failure_type=FailureType.TASK_FAILURE,
+        description="Convergent: failure keyword from one of multiple merged paths",
+        failure_event_id=run.events[-1].event_id,
+    )
+
+    all_interventions = _get_tool_channel_interventions(run, graph, failure)
+    calc_chs = _find_channels_by_tool(run, graph, all_interventions, "calculator")
+    echo_chs = _find_channels_by_tool(run, graph, all_interventions, "echo")
+
+    causal_ids = [ci.intervention_id for ci in calc_chs]
+    benign_ids = [ci.intervention_id for ci in echo_chs]
+
+    mechanism = CausalMechanismSpec(
+        mechanism=CausalMechanism.CONVERGENT,
+        failure_keywords=[failure_keyword],
+        keyword_logic="any",
+        causal_tool_names=["calculator"],
+        distractor_tool_names=["echo"],
+    )
+    evaluator = _build_keyword_evaluator([failure_keyword], "any")
+
+    ground_truth = ScenarioGroundTruth(
+        scenario_id=f"bf_i_{seed}",
+        family="BF-I",
+        seed=seed,
+        mechanism=mechanism,
+        causal_channel_ids=causal_ids,
+        irrelevant_channel_ids=benign_ids,
+        causal_origin_ids=causal_ids,
+        propagation_channel_ids=[],
+        failure_actuator_ids=causal_ids,
+        required_prevention_sets=[causal_ids] if causal_ids else [],
+        factual_outcome=evaluator(run),
+        single_intervention_outcomes={
+            **dict.fromkeys(causal_ids, False),
+            **dict.fromkeys(benign_ids, True),
+        },
+    )
+
+    scenario = BenchmarkScenario(
+        scenario_id=ground_truth.scenario_id,
+        family="BF-I",
+        seed=seed,
+        run=run,
+        evidence_graph=graph,
+        failure=failure,
+        candidates=all_interventions,
+        ground_truth=ground_truth,
+    )
+    scenario._evaluator = evaluator  # type: ignore[attr-defined]
+    return scenario
+
+
+# ===================================================================
+# BF-J: Root-vs-symptom — upstream cause vs visible symptom
+# ===================================================================
+
+
+def generate_root_vs_symptom(
+    *,
+    seed: int = 42,
+    failure_keyword: str = "42",
+) -> BenchmarkScenario:
+    """BF-J: Root-vs-symptom scenario.
+
+    An upstream causal channel and a downstream symptom channel both
+    appear plausible.  The upstream origin is the true cause; the
+    downstream symptom is merely a manifestation.
+
+    Structure::
+
+        calculator("42")          <-- root cause (origin)
+            |
+        processor("ERROR: 42")   <-- downstream symptom (propagation)
+            |
+        output                    <-- failure
+
+    Both calculator and processor channels carry the keyword.
+    But only intervening on calculator (root) removes it at source;
+    processor merely passes it through.
+
+    Tests: whether CELA identifies the upstream root rather than
+    selecting the more visible downstream symptom.
+    """
+    responses = [
+        (
+            "1. [TOOL:calculator] Compute\n"
+            "2. [TOOL:processor] Process result\n"
+            "3. Summarise"
+        ),
+        f"Calculator: {failure_keyword}. Processor detected ERROR: {failure_keyword}.",
+        f"Final: ERROR {failure_keyword}.",
+    ]
+
+    reg = ToolRegistry()
+    reg.register(FixedValueTool("calculator", failure_keyword))
+    reg.register(FixedValueTool("processor", f"ERROR: {failure_keyword}"))
+
+    run = _execute_scenario(responses, "Compute and process", tool_registry=reg)
+    graph = _build_graph(run)
+
+    failure = Failure(
+        run_id=run.run_id,
+        failure_type=FailureType.TASK_FAILURE,
+        description="Root vs symptom: keyword from upstream origin",
+        failure_event_id=run.events[-1].event_id,
+    )
+
+    all_interventions = _get_tool_channel_interventions(run, graph, failure)
+    calc_chs = _find_channels_by_tool(run, graph, all_interventions, "calculator")
+    proc_chs = _find_channels_by_tool(run, graph, all_interventions, "processor")
+
+    origin_ids = [ci.intervention_id for ci in calc_chs]
+    symptom_ids = [ci.intervention_id for ci in proc_chs]
+    all_causal = origin_ids + symptom_ids
+
+    mechanism = CausalMechanismSpec(
+        mechanism=CausalMechanism.ROOT_VS_SYMPTOM,
+        failure_keywords=[failure_keyword],
+        keyword_logic="any",
+        causal_tool_names=["calculator", "processor"],
+    )
+    evaluator = _build_keyword_evaluator([failure_keyword], "any")
+
+    ground_truth = ScenarioGroundTruth(
+        scenario_id=f"bf_j_{seed}",
+        family="BF-J",
+        seed=seed,
+        mechanism=mechanism,
+        causal_channel_ids=all_causal,
+        irrelevant_channel_ids=[],
+        causal_origin_ids=origin_ids,
+        propagation_channel_ids=symptom_ids,
+        failure_actuator_ids=symptom_ids if symptom_ids else origin_ids,
+        # Intervening at origin prevents everything downstream
+        required_prevention_sets=[origin_ids] if origin_ids else [],
+        factual_outcome=evaluator(run),
+        single_intervention_outcomes={
+            **dict.fromkeys(origin_ids, False),
+            **dict.fromkeys(symptom_ids, False),
+        },
+    )
+
+    scenario = BenchmarkScenario(
+        scenario_id=ground_truth.scenario_id,
+        family="BF-J",
+        seed=seed,
+        run=run,
+        evidence_graph=graph,
+        failure=failure,
+        candidates=all_interventions,
+        ground_truth=ground_truth,
+    )
+    scenario._evaluator = evaluator  # type: ignore[attr-defined]
+    return scenario
+
+
+# ===================================================================
+# BF-K: Downstream repair — later intervention repairs upstream
+# ===================================================================
+
+
+def generate_downstream_repair(
+    *,
+    seed: int = 42,
+    failure_keyword: str = "42",
+) -> BenchmarkScenario:
+    """BF-K: Downstream repair scenario.
+
+    An upstream tool produces a failure keyword, but a downstream
+    repair tool corrects the output.  The factual execution still
+    fails because the repair is imperfect (keyword persists in
+    reasoning).
+
+    Structure::
+
+        calculator("42")           <-- causal origin
+            |
+        fixer("FIXED: safe")       <-- attempted repair (non-causal)
+            |
+        output                     <-- failure (keyword still in reasoning)
+
+    The fixer's output does NOT contain the failure keyword, but
+    the keyword from calculator persists in the LLM reasoning text.
+
+    Tests: whether CELA correctly identifies calculator as the
+    causal origin and does NOT incorrectly attribute to fixer.
+    """
+    responses = [
+        (
+            "1. [TOOL:calculator] Compute\n"
+            "2. [TOOL:fixer] Attempt repair\n"
+            "3. Summarise"
+        ),
+        f"Calculator: {failure_keyword}. Fixer attempted repair: FIXED safe."
+        f" But the original value {failure_keyword} persists.",
+        f"Result: {failure_keyword} (repair incomplete).",
+    ]
+
+    reg = ToolRegistry()
+    reg.register(FixedValueTool("calculator", failure_keyword))
+    reg.register(FixedValueTool("fixer", "FIXED: safe"))
+
+    run = _execute_scenario(responses, "Compute and repair", tool_registry=reg)
+    graph = _build_graph(run)
+
+    failure = Failure(
+        run_id=run.run_id,
+        failure_type=FailureType.TASK_FAILURE,
+        description="Downstream repair: keyword persists despite repair attempt",
+        failure_event_id=run.events[-1].event_id,
+    )
+
+    all_interventions = _get_tool_channel_interventions(run, graph, failure)
+    calc_chs = _find_channels_by_tool(run, graph, all_interventions, "calculator")
+    fixer_chs = _find_channels_by_tool(run, graph, all_interventions, "fixer")
+
+    causal_ids = [ci.intervention_id for ci in calc_chs]
+    repair_ids = [ci.intervention_id for ci in fixer_chs]
+
+    mechanism = CausalMechanismSpec(
+        mechanism=CausalMechanism.DOWNSTREAM_REPAIR,
+        failure_keywords=[failure_keyword],
+        keyword_logic="any",
+        causal_tool_names=["calculator"],
+        distractor_tool_names=["fixer"],
+    )
+    evaluator = _build_keyword_evaluator([failure_keyword], "any")
+
+    ground_truth = ScenarioGroundTruth(
+        scenario_id=f"bf_k_{seed}",
+        family="BF-K",
+        seed=seed,
+        mechanism=mechanism,
+        causal_channel_ids=causal_ids,
+        irrelevant_channel_ids=repair_ids,
+        causal_origin_ids=causal_ids,
+        propagation_channel_ids=[],
+        failure_actuator_ids=causal_ids,
+        required_prevention_sets=[causal_ids] if causal_ids else [],
+        factual_outcome=evaluator(run),
+        single_intervention_outcomes={
+            **dict.fromkeys(causal_ids, False),
+            **dict.fromkeys(repair_ids, True),
+        },
+    )
+
+    scenario = BenchmarkScenario(
+        scenario_id=ground_truth.scenario_id,
+        family="BF-K",
+        seed=seed,
+        run=run,
+        evidence_graph=graph,
+        failure=failure,
+        candidates=all_interventions,
+        ground_truth=ground_truth,
+    )
+    scenario._evaluator = evaluator  # type: ignore[attr-defined]
+    return scenario
+
+
 def get_evaluator(scenario: BenchmarkScenario) -> FailureEvaluator:
     """Get the failure evaluator for a scenario.
 
@@ -949,4 +1372,9 @@ def all_scenarios(*, seed: int = 42) -> list[BenchmarkScenario]:
         generate_cascade(seed=seed),
         generate_cost_asymmetric(seed=seed),
         generate_shared_source(seed=seed),
+        generate_branching(seed=seed),
+        generate_convergent(seed=seed),
+        generate_root_vs_symptom(seed=seed),
+        generate_downstream_repair(seed=seed),
     ]
+

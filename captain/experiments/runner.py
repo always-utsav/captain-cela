@@ -42,11 +42,16 @@ from captain.benchmarks.runner import (
 )
 from captain.benchmarks.scenarios import (
     BenchmarkScenario,
+    generate_branching,
     generate_cascade,
     generate_complementary,
+    generate_convergent,
     generate_cost_asymmetric,
     generate_distractor,
+    generate_downstream_repair,
     generate_redundant,
+    generate_root_vs_symptom,
+    generate_shared_source,
     generate_single_cause,
 )
 from captain.experiments.statistics import (
@@ -93,6 +98,11 @@ class ExperimentConfig(BaseModel):
             "BF-D",
             "BF-E",
             "BF-F",
+            "BF-G",
+            "BF-H",
+            "BF-I",
+            "BF-J",
+            "BF-K",
         ]
     )
     methods: list[str] = Field(
@@ -192,6 +202,11 @@ _FAMILY_GENERATORS: dict[str, Any] = {
     "BF-D": generate_distractor,
     "BF-E": generate_cascade,
     "BF-F": generate_cost_asymmetric,
+    "BF-G": generate_shared_source,
+    "BF-H": generate_branching,
+    "BF-I": generate_convergent,
+    "BF-J": generate_root_vs_symptom,
+    "BF-K": generate_downstream_repair,
 }
 
 
