@@ -750,12 +750,12 @@ def generate_cost_asymmetric(
     mechanism = CausalMechanismSpec(
         mechanism=CausalMechanism.COST_ASYMMETRIC,
         failure_keywords=["42", "hello"],
-        keyword_logic="any",
+        keyword_logic="all",
         causal_tool_names=["calculator", "echo"],
     )
 
-    # OR evaluator: blocking either prevents that keyword
-    evaluator = _build_keyword_evaluator(["42", "hello"], "any")
+    # AND evaluator: blocking either prevents that keyword
+    evaluator = _build_keyword_evaluator(["42", "hello"], "all")
 
     all_causal = calc_ids + echo_ids
 
@@ -773,8 +773,8 @@ def generate_cost_asymmetric(
         required_prevention_sets=[[cid] for cid in calc_ids] + [[eid] for eid in echo_ids],
         factual_outcome=evaluator(run),
         single_intervention_outcomes={
-            **dict.fromkeys(calc_ids, True),
-            **dict.fromkeys(echo_ids, True),
+            **dict.fromkeys(calc_ids, False),
+            **dict.fromkeys(echo_ids, False),
         },
         joint_intervention_outcome=False,
         channel_costs=costs,
@@ -941,11 +941,11 @@ def generate_branching(
     seed: int = 42,
     failure_keyword: str = "42",
 ) -> BenchmarkScenario:
-    """BF-H: Branching scenario.
+    """BF-H: Convergent topology with mixed causal and benign inputs.
 
     One source tool produces evidence that branches into multiple
     downstream reasoning pathways.  One branch leads to failure,
-    others are benign.
+    others are benign. (Note: The actual topology is convergent).
 
     Structure::
 
@@ -986,7 +986,7 @@ def generate_branching(
     failure = Failure(
         run_id=run.run_id,
         failure_type=FailureType.TASK_FAILURE,
-        description="Branching: failure keyword propagated through branch A",
+        description="Convergent topology with mixed causal and benign inputs",
         failure_event_id=run.events[-1].event_id,
     )
 
@@ -1001,7 +1001,7 @@ def generate_branching(
     causal_ids = origin_ids + prop_ids
 
     mechanism = CausalMechanismSpec(
-        mechanism=CausalMechanism.BRANCHING,
+        mechanism=CausalMechanism.BRANCHING,  # Note: The actual topology is convergent
         failure_keywords=[failure_keyword],
         keyword_logic="any",
         causal_tool_names=["calculator", "tool_a"],
@@ -1071,11 +1071,7 @@ def generate_convergent(
     path vs the benign convergent path.
     """
     responses = [
-        (
-            "1. [TOOL:calculator] Compute\n"
-            "2. [TOOL:echo] Greet\n"
-            "3. Summarise"
-        ),
+        ("1. [TOOL:calculator] Compute\n2. [TOOL:echo] Greet\n3. Summarise"),
         f"Calculator returned {failure_keyword} and echo said hello.",
         f"Combined result: {failure_keyword}, hello.",
     ]
@@ -1152,33 +1148,28 @@ def generate_root_vs_symptom(
     seed: int = 42,
     failure_keyword: str = "42",
 ) -> BenchmarkScenario:
-    """BF-J: Root-vs-symptom scenario.
+    """BF-J: Parallel independent causal sources.
 
-    An upstream causal channel and a downstream symptom channel both
-    appear plausible.  The upstream origin is the true cause; the
-    downstream symptom is merely a manifestation.
+    Two seemingly connected tools actually independently produce the
+    failure keyword.
 
     Structure::
 
-        calculator("42")          <-- root cause (origin)
+        calculator("42")          <-- independent source
             |
-        processor("ERROR: 42")   <-- downstream symptom (propagation)
+        processor("ERROR: 42")    <-- independent source
             |
         output                    <-- failure
 
-    Both calculator and processor channels carry the keyword.
-    But only intervening on calculator (root) removes it at source;
-    processor merely passes it through.
+    Both calculator and processor channels carry the keyword independently.
+    Since both independently produce the keyword, BOTH must be blocked to
+    prevent the failure. Blocking just one will still result in failure.
 
-    Tests: whether CELA identifies the upstream root rather than
-    selecting the more visible downstream symptom.
+    Tests: whether CELA identifies that both independent sources need
+    to be intervened upon.
     """
     responses = [
-        (
-            "1. [TOOL:calculator] Compute\n"
-            "2. [TOOL:processor] Process result\n"
-            "3. Summarise"
-        ),
+        ("1. [TOOL:calculator] Compute\n2. [TOOL:processor] Process result\n3. Summarise"),
         f"Calculator: {failure_keyword}. Processor detected ERROR: {failure_keyword}.",
         f"Final: ERROR {failure_keyword}.",
     ]
@@ -1193,7 +1184,7 @@ def generate_root_vs_symptom(
     failure = Failure(
         run_id=run.run_id,
         failure_type=FailureType.TASK_FAILURE,
-        description="Root vs symptom: keyword from upstream origin",
+        description="Parallel independent causal sources",
         failure_event_id=run.events[-1].event_id,
     )
 
@@ -1223,12 +1214,14 @@ def generate_root_vs_symptom(
         causal_origin_ids=origin_ids,
         propagation_channel_ids=symptom_ids,
         failure_actuator_ids=symptom_ids if symptom_ids else origin_ids,
-        # Intervening at origin prevents everything downstream
-        required_prevention_sets=[origin_ids] if origin_ids else [],
+        # Intervening requires blocking BOTH
+        required_prevention_sets=[origin_ids + symptom_ids]
+        if (origin_ids and symptom_ids)
+        else [],
         factual_outcome=evaluator(run),
         single_intervention_outcomes={
-            **dict.fromkeys(origin_ids, False),
-            **dict.fromkeys(symptom_ids, False),
+            **dict.fromkeys(origin_ids, True),
+            **dict.fromkeys(symptom_ids, True),
         },
     )
 
@@ -1256,7 +1249,7 @@ def generate_downstream_repair(
     seed: int = 42,
     failure_keyword: str = "42",
 ) -> BenchmarkScenario:
-    """BF-K: Downstream repair scenario.
+    """BF-K: Downstream persistence with ineffective repair attempt.
 
     An upstream tool produces a failure keyword, but a downstream
     repair tool corrects the output.  The factual execution still
@@ -1278,11 +1271,7 @@ def generate_downstream_repair(
     causal origin and does NOT incorrectly attribute to fixer.
     """
     responses = [
-        (
-            "1. [TOOL:calculator] Compute\n"
-            "2. [TOOL:fixer] Attempt repair\n"
-            "3. Summarise"
-        ),
+        ("1. [TOOL:calculator] Compute\n2. [TOOL:fixer] Attempt repair\n3. Summarise"),
         f"Calculator: {failure_keyword}. Fixer attempted repair: FIXED safe."
         f" But the original value {failure_keyword} persists.",
         f"Result: {failure_keyword} (repair incomplete).",
@@ -1298,7 +1287,7 @@ def generate_downstream_repair(
     failure = Failure(
         run_id=run.run_id,
         failure_type=FailureType.TASK_FAILURE,
-        description="Downstream repair: keyword persists despite repair attempt",
+        description="Downstream persistence with ineffective repair attempt",
         failure_event_id=run.events[-1].event_id,
     )
 
@@ -1377,4 +1366,3 @@ def all_scenarios(*, seed: int = 42) -> list[BenchmarkScenario]:
         generate_root_vs_symptom(seed=seed),
         generate_downstream_repair(seed=seed),
     ]
-

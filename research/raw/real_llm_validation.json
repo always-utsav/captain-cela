@@ -1,0 +1,170 @@
+{
+  "provider": "google_gemini",
+  "model": "gemini-3.6-flash",
+  "model_version": "gemini-3.6-flash",
+  "temperature": 0.0,
+  "max_output_tokens": 1024,
+  "task": "Compute a value using calculator tool and report the result",
+  "scenario_description": "Simple single-channel scenario (BF-A analogue). Calculator tool returns '42' (failure keyword). LLM must reason about the result. Tests whether channel intervention changes LLM output.",
+  "tool_definitions": [
+    "calculator: returns a computed value"
+  ],
+  "n_trials": 5,
+  "factual_trials": [
+    {
+      "trial_id": 0,
+      "condition": "factual",
+      "outcome_text": "The calculator returned the number **42**. Since the original calculation or expression was not provided, here is a summary of the result and its properties:\n\n### **Summary of the Result (42):**\n\n* **Value:** 42\n* **Mathematical Properties:**\n  * **Type:** Positive even integer / composite number.\n  * **Prime Factorization:** $2 \\times 3 \\times 7$ (a *sphenic number*, meaning it is the product of three distinct prime numbers).\n  * **Factors:** 1, 2, 3, 6, 7, 14, 21, and 42.\n  * **Pronic Number:*",
+      "failure_detected": true,
+      "keyword_present": true,
+      "error": null,
+      "runtime_s": 5.291
+    },
+    {
+      "trial_id": 1,
+      "condition": "factual",
+      "outcome_text": "**Summary & Analysis:**\n\n* **Numerical Properties:** **42** is an even composite number. Its prime factorization is $2 \\times 3 \\times 7$, and its complete list of factors is 1, 2, 3, 6, 7, 14, 21, and 42.\n* **Cultural Reference:** Famously, 42 is known as \"the Answer to the Ultimate Question of Life, the Universe, and Everything\" from Douglas Adams' *The Hitchhiker's Guide to the Galaxy*.\n\n*If you would like me to verify or explain the specific calculation that led to this result, please provid",
+      "failure_detected": true,
+      "keyword_present": true,
+      "error": null,
+      "runtime_s": 8.991
+    },
+    {
+      "trial_id": 2,
+      "condition": "factual",
+      "outcome_text": "[GEMINI_ERROR: ResourceExhausted]",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 0.478
+    },
+    {
+      "trial_id": 3,
+      "condition": "factual",
+      "outcome_text": "[GEMINI_ERROR: ResourceExhausted]",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 0.477
+    },
+    {
+      "trial_id": 4,
+      "condition": "factual",
+      "outcome_text": "[GEMINI_ERROR: ResourceExhausted]",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 0.371
+    }
+  ],
+  "channel_trials": [
+    {
+      "trial_id": 0,
+      "condition": "channel",
+      "outcome_text": "Based on the output provided, here is a summary of the result:\n\n1. **Status**: **`[BLOCKED]`** — The calculation result was not displayed because it was withheld or redacted.\n2. **Reason**: The message indicates the value was removed for **causal analysis** (or potentially due to system safety/privacy filters).\n3. **Impact**: Because the underlying numerical value and original input expression are missing, no mathematical analysis or calculation summary can be performed. \n\nTo get a complete anal",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 5.442
+    },
+    {
+      "trial_id": 1,
+      "condition": "channel",
+      "outcome_text": "Based on the provided output, the calculation result is currently unavailable because it has been redacted (`[BLOCKED]`). \n\n**Summary:**\n* **Status:** Redacted / Blocked\n* **Reason:** Withheld for causal analysis or safety/filtering rules.\n* **Impact:** The numerical output cannot be analyzed directly.\n\nIf you can provide the original math problem or equation, I would be happy to calculate and analyze it for you!",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 5.837
+    },
+    {
+      "trial_id": 2,
+      "condition": "channel",
+      "outcome_text": "[GEMINI_ERROR: ResourceExhausted]",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 0.483
+    },
+    {
+      "trial_id": 3,
+      "condition": "channel",
+      "outcome_text": "[GEMINI_ERROR: ResourceExhausted]",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 0.422
+    },
+    {
+      "trial_id": 4,
+      "condition": "channel",
+      "outcome_text": "[GEMINI_ERROR: ResourceExhausted]",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 0.468
+    }
+  ],
+  "source_event_trials": [
+    {
+      "trial_id": 0,
+      "condition": "source_event",
+      "outcome_text": "Here is a summary and analysis of why the calculator tool execution may have been blocked or produced no output:\n\n### Key Possible Causes\n\n1. **Security or Policy Restrictions**  \n   * **Cause:** The input triggered a safety filter, sandbox guardrail, or restricted execution policy, causing the system to terminate the call before processing.\n\n2. **Input/Syntax Formatting Errors**  \n   * **Cause:** The mathematical expression contained invalid characters, unsupported operations, or incorrect form",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 5.976
+    },
+    {
+      "trial_id": 1,
+      "condition": "source_event",
+      "outcome_text": "[GEMINI_ERROR: ResourceExhausted]",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 0.478
+    },
+    {
+      "trial_id": 2,
+      "condition": "source_event",
+      "outcome_text": "[GEMINI_ERROR: ResourceExhausted]",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 0.48
+    },
+    {
+      "trial_id": 3,
+      "condition": "source_event",
+      "outcome_text": "[GEMINI_ERROR: ResourceExhausted]",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 0.339
+    },
+    {
+      "trial_id": 4,
+      "condition": "source_event",
+      "outcome_text": "[GEMINI_ERROR: ResourceExhausted]",
+      "failure_detected": false,
+      "keyword_present": false,
+      "error": null,
+      "runtime_s": 0.484
+    }
+  ],
+  "factual_failure_rate": 0.4,
+  "channel_failure_rate": 0.0,
+  "source_event_failure_rate": 0.0,
+  "channel_cee": 0.4,
+  "source_event_cee": 0.4,
+  "channel_cee_ci": [],
+  "source_event_cee_ci": [],
+  "channel_keyword_preserved_rate": 0.0,
+  "source_event_keyword_preserved_rate": 0.0,
+  "total_api_calls": 5,
+  "total_runtime_s": 36.02,
+  "failures_exclusions": [],
+  "started_at": "2026-09-08T19:45:12.925313+00:00",
+  "completed_at": "2026-09-08T19:45:50.025436+00:00",
+  "technical_success": true,
+  "notes": ""
+}

@@ -13,11 +13,11 @@ import json
 from pathlib import Path
 from typing import Any
 
-import matplotlib  # type: ignore[import-untyped]
+import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # type: ignore[import-untyped]
-import numpy as np  # type: ignore[import-untyped]
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def _base() -> tuple[Path, Path]:

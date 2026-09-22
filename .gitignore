@@ -50,7 +50,7 @@ secrets/
 *.secret
 
 # Stage 2: Generated research data (large, reproducible)
-research/raw/
+# Research data is committed for reproducibility
+# research/raw/  # DO NOT ignore - needed for reproducibility
 research/processed/
-research/figures/*.png
-research/figures/*.pdf
+# PNG figures committed alongside SVG

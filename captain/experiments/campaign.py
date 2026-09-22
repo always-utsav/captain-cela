@@ -168,7 +168,7 @@ class CampaignRunner:
                 text=True,
                 cwd=os.path.dirname(__file__) or ".",
             )
-            commit = r.stdout.strip()[:12] if r.returncode == 0 else "unknown"
+            commit = r.stdout.strip() if r.returncode == 0 else "unknown"
         except Exception:
             commit = "unknown"
 
@@ -466,7 +466,10 @@ class CampaignRunner:
                 evidence_graph=sc.evidence_graph,
                 num_trials=n_trials,
             )
-            result = est.estimate(sc.candidates[0] if sc.candidates else ci, ci)
+            result = est.estimate(
+                sc.candidates[0] if sc.candidates else ci,  # type: ignore[arg-type]
+                ci,
+            )
             rows.append(
                 {
                     "replay_count": n_trials,
@@ -568,7 +571,7 @@ class CampaignRunner:
         scale = self.run_scalability()
         print(f"  {len(scale.get('scalability', []))} families")
 
-        result = CampaignResult(
+        campaign_result = CampaignResult(
             campaign_id=f"stage2_{self.config.seeds[0]}",
             manifest=manifest,
             seed_results=seed_summaries,
@@ -577,9 +580,9 @@ class CampaignRunner:
             convergence_results=conv,
             scalability_results=scale,
         )
-        self._save("campaign_full", result)
+        self._save("campaign_full", campaign_result)
         print("\n=== Campaign complete ===")
-        return result
+        return campaign_result
 
 
 if __name__ == "__main__":

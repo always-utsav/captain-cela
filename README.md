@@ -9,12 +9,15 @@ The research method developed on CAPTAIN is **CELA — Counterfactual Evidence-L
 
 ## Status
 
-**IMPLEMENTATION COMPLETE** — All 18 stages implemented.
+**IMPLEMENTATION COMPLETE** — All 18 implementation stages complete.
 
-- 644 tests passing
+**RESEARCH STAGE 2 COMPLETE** — Full experimental campaign executed.
+
+- 682 tests passing
 - Full deterministic demo
-- Explorer with benchmark/experiment views
+- Explorer with benchmark/experiment views + research website
 - Reproducible experiment workflow
+- Real-LLM sanity validation (Gemini)
 
 ## Quick Start
 
@@ -94,13 +97,14 @@ All experiments use deterministic seeds. Master seed 42 is the default.
 - `captain/demo.py`: One-command reproducible demonstration.
 - `docs/`: Architecture, research spec, algorithms, experiments, data model.
 - `project_state/`: Project status tracking.
-- `tests/`: Unit and integration test suites (644 tests).
+- `tests/`: Unit and integration test suites (682 tests).
 
 ## Known Limitations
 
-1. **UUID-based evidence IDs**: Scenario generators use `uuid.uuid4()` internally, so exact metric values vary across runs even with the same seed. Structural properties (family, candidate count, ground-truth structure) are deterministic.
+1. **Deterministic IDs only in benchmarks**: Benchmark scenarios use `deterministic_ids()` context manager. Outside this context, IDs use `uuid.uuid4()`.
 2. **Stdlib-only statistics**: No numpy/scipy — Wilcoxon uses normal approximation, bootstrap is percentile-only.
-3. **MockLLMProvider only**: No real LLM integration. The platform is designed for controlled experimentation with scripted responses.
+3. **MockLLM for benchmarks**: Benchmark campaign uses deterministic `MockLLMProvider`. Real-LLM sanity validation (Gemini 3.6-flash) exists but is a controlled prompt-level check, not full end-to-end agent replay.
+4. **Controlled simulation**: All experiments run in a controlled synthetic environment, not production agent deployments.
 
 ## License
 MIT

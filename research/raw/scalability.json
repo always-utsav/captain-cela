@@ -1,0 +1,25 @@
+{
+  "scalability": [
+    {
+      "family": "BF-A",
+      "runtime_s": 0.0026,
+      "n_method_results": 1
+    },
+    {
+      "family": "BF-E",
+      "runtime_s": 0.0019,
+      "n_method_results": 1
+    },
+    {
+      "family": "BF-H",
+      "runtime_s": 0.0038,
+      "n_method_results": 1
+    },
+    {
+      "family": "BF-J",
+      "runtime_s": 0.0029,
+      "n_method_results": 1
+    }
+  ],
+  "seed": 42
+}

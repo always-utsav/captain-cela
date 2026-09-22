@@ -70,10 +70,10 @@ class GeminiProvider(LLMProvider):
 
         # Lazy import to avoid hard dependency
         try:
-            import google.generativeai as genai  # type: ignore[import-untyped]
+            import google.generativeai as genai
 
-            genai.configure(api_key=self._api_key)
-            self._model = genai.GenerativeModel(
+            genai.configure(api_key=self._api_key)  # type: ignore[attr-defined]
+            self._model = genai.GenerativeModel(  # type: ignore[attr-defined]
                 model_name=model_name,
                 generation_config={
                     "temperature": temperature,
@@ -82,10 +82,10 @@ class GeminiProvider(LLMProvider):
             )
             self._available = True
         except ImportError:
-            self._model = None
+            self._model = None  # type: ignore[assignment]
             self._available = False
         except Exception:
-            self._model = None
+            self._model = None  # type: ignore[assignment]
             self._available = False
 
     @property

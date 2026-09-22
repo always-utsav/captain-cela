@@ -1,0 +1,42 @@
+[
+  {
+    "family": "BF-A",
+    "control_type": "irrelevant_channel_block",
+    "seed": 42,
+    "expected_effect": "CEE=0 (irrelevant channel)",
+    "justification": "Blocking echo tool should not prevent calculator-caused failure",
+    "observed_cee": 0.0,
+    "observed_outcome": true,
+    "passed": true
+  },
+  {
+    "family": "BF-G",
+    "control_type": "non_causal_artifact_block",
+    "seed": 42,
+    "expected_effect": "CEE=0 (benign artifact B)",
+    "justification": "Blocking artifact B ('ok') should not prevent failure from artifact A ('42')",
+    "observed_cee": 0.0,
+    "observed_outcome": true,
+    "passed": true
+  },
+  {
+    "family": "BF-A",
+    "control_type": "irrelevant_channel_block",
+    "seed": 123,
+    "expected_effect": "CEE=0 (irrelevant channel)",
+    "justification": "Blocking echo tool should not prevent calculator-caused failure",
+    "observed_cee": 0.0,
+    "observed_outcome": true,
+    "passed": true
+  },
+  {
+    "family": "BF-G",
+    "control_type": "non_causal_artifact_block",
+    "seed": 123,
+    "expected_effect": "CEE=0 (benign artifact B)",
+    "justification": "Blocking artifact B ('ok') should not prevent failure from artifact A ('42')",
+    "observed_cee": 0.0,
+    "observed_outcome": true,
+    "passed": true
+  }
+]

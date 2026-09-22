@@ -1,0 +1,53 @@
+{
+  "convergence": [
+    {
+      "replay_count": 1,
+      "cee": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0,
+      "ci_width": 0.0,
+      "n_valid": 1
+    },
+    {
+      "replay_count": 3,
+      "cee": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0,
+      "ci_width": 0.0,
+      "n_valid": 3
+    },
+    {
+      "replay_count": 5,
+      "cee": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0,
+      "ci_width": 0.0,
+      "n_valid": 5
+    },
+    {
+      "replay_count": 10,
+      "cee": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0,
+      "ci_width": 0.0,
+      "n_valid": 10
+    },
+    {
+      "replay_count": 20,
+      "cee": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0,
+      "ci_width": 0.0,
+      "n_valid": 20
+    },
+    {
+      "replay_count": 50,
+      "cee": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0,
+      "ci_width": 0.0,
+      "n_valid": 50
+    }
+  ],
+  "seed": 42
+}

@@ -1,0 +1,471 @@
+{
+  "campaign_id": "stage2_42",
+  "manifest": {
+    "families": [
+      "BF-A",
+      "BF-B",
+      "BF-C",
+      "BF-D",
+      "BF-E",
+      "BF-F",
+      "BF-G",
+      "BF-H",
+      "BF-I",
+      "BF-J",
+      "BF-K"
+    ],
+    "instances_per_family": 5,
+    "seeds": [
+      42,
+      123,
+      456,
+      789,
+      1024
+    ],
+    "methods": [
+      "B1",
+      "B2",
+      "B3",
+      "B4",
+      "B5",
+      "A1",
+      "A2",
+      "A3",
+      "A4",
+      "A5"
+    ],
+    "baselines": [
+      "B1",
+      "B2",
+      "B3",
+      "B4",
+      "B5"
+    ],
+    "total_scenarios": 275,
+    "total_method_evaluations": 2750,
+    "expected_replays": 5500,
+    "software_commit": "98e6366c6e47",
+    "config": {
+      "master_seed": 42,
+      "instances_per_family": 5,
+      "k": 2,
+      "max_set_size": 3,
+      "lambda_cost": 0.1,
+      "max_replay_evaluations": 20,
+      "bootstrap_resamples": 2000,
+      "bootstrap_seed": 42,
+      "confidence_level": 0.95,
+      "comparison_alpha": 0.05,
+      "min_samples_for_ci": 3,
+      "run_oracle": true,
+      "families": [
+        "BF-A",
+        "BF-B",
+        "BF-C",
+        "BF-D",
+        "BF-E",
+        "BF-F",
+        "BF-G",
+        "BF-H",
+        "BF-I",
+        "BF-J",
+        "BF-K"
+      ],
+      "methods": [
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5"
+      ],
+      "equivalences": {
+        "A1": "B2",
+        "A2": "B3"
+      },
+      "seeds": [
+        42,
+        123,
+        456,
+        789,
+        1024
+      ],
+      "replay_counts": [
+        1,
+        3,
+        5,
+        10,
+        20,
+        50
+      ],
+      "pathway_counts": [
+        1,
+        2,
+        3,
+        5,
+        10
+      ],
+      "lambda_values": [
+        0.0,
+        0.05,
+        0.1,
+        0.2,
+        0.5,
+        1.0
+      ],
+      "output_dir": "research/raw"
+    },
+    "created_at": "2026-09-08T19:37:52.286377+00:00"
+  },
+  "seed_results": {
+    "42": {
+      "runtime_s": 12.33,
+      "comparisons": 63,
+      "ablation_steps": 28
+    },
+    "123": {
+      "runtime_s": 12.02,
+      "comparisons": 63,
+      "ablation_steps": 28
+    },
+    "456": {
+      "runtime_s": 12.16,
+      "comparisons": 63,
+      "ablation_steps": 28
+    },
+    "789": {
+      "runtime_s": 12.14,
+      "comparisons": 63,
+      "ablation_steps": 28
+    },
+    "1024": {
+      "runtime_s": 12.19,
+      "comparisons": 63,
+      "ablation_steps": 28
+    }
+  },
+  "granularity_results": [
+    {
+      "family": "BF-G",
+      "seed": 42,
+      "instance_id": "bf_g_42",
+      "factual_outcome": true,
+      "channel_intervention": {
+        "type": "artifact_replacement",
+        "target_id": "art_a792e50efa8a0013",
+        "replay_success": true,
+        "A_present": false,
+        "B_present": true,
+        "failure": false,
+        "CEE": 1.0,
+        "affected_evidence": 1,
+        "preserved_evidence": 1,
+        "collateral": 0
+      },
+      "source_event_intervention": {
+        "type": "tool_result_override",
+        "target_id": "evt_c87340c40e927f63",
+        "replay_success": true,
+        "A_present": false,
+        "B_present": false,
+        "failure": false,
+        "CEE": 1.0,
+        "affected_evidence": 2,
+        "preserved_evidence": 0,
+        "collateral": 1
+      },
+      "granularity_metrics": {
+        "channel_collateral_rate": 0.0,
+        "source_event_collateral_rate": 1.0,
+        "unrelated_preservation_channel": 1.0,
+        "unrelated_preservation_source": 0.0,
+        "channel_more_selective": true,
+        "scope_channel": 1,
+        "scope_source_event": 2
+      }
+    },
+    {
+      "family": "BF-G",
+      "seed": 123,
+      "instance_id": "bf_g_123",
+      "factual_outcome": true,
+      "channel_intervention": {
+        "type": "artifact_replacement",
+        "target_id": "art_41e3b62d8545bc90",
+        "replay_success": true,
+        "A_present": false,
+        "B_present": true,
+        "failure": false,
+        "CEE": 1.0,
+        "affected_evidence": 1,
+        "preserved_evidence": 1,
+        "collateral": 0
+      },
+      "source_event_intervention": {
+        "type": "tool_result_override",
+        "target_id": "evt_4856587897bcb2a2",
+        "replay_success": true,
+        "A_present": false,
+        "B_present": false,
+        "failure": false,
+        "CEE": 1.0,
+        "affected_evidence": 2,
+        "preserved_evidence": 0,
+        "collateral": 1
+      },
+      "granularity_metrics": {
+        "channel_collateral_rate": 0.0,
+        "source_event_collateral_rate": 1.0,
+        "unrelated_preservation_channel": 1.0,
+        "unrelated_preservation_source": 0.0,
+        "channel_more_selective": true,
+        "scope_channel": 1,
+        "scope_source_event": 2
+      }
+    },
+    {
+      "family": "BF-G",
+      "seed": 456,
+      "instance_id": "bf_g_456",
+      "factual_outcome": true,
+      "channel_intervention": {
+        "type": "artifact_replacement",
+        "target_id": "art_67bfc39e473efb9d",
+        "replay_success": true,
+        "A_present": false,
+        "B_present": true,
+        "failure": false,
+        "CEE": 1.0,
+        "affected_evidence": 1,
+        "preserved_evidence": 1,
+        "collateral": 0
+      },
+      "source_event_intervention": {
+        "type": "tool_result_override",
+        "target_id": "evt_5bb15e0bb9713b48",
+        "replay_success": true,
+        "A_present": false,
+        "B_present": false,
+        "failure": false,
+        "CEE": 1.0,
+        "affected_evidence": 2,
+        "preserved_evidence": 0,
+        "collateral": 1
+      },
+      "granularity_metrics": {
+        "channel_collateral_rate": 0.0,
+        "source_event_collateral_rate": 1.0,
+        "unrelated_preservation_channel": 1.0,
+        "unrelated_preservation_source": 0.0,
+        "channel_more_selective": true,
+        "scope_channel": 1,
+        "scope_source_event": 2
+      }
+    },
+    {
+      "family": "BF-G",
+      "seed": 789,
+      "instance_id": "bf_g_789",
+      "factual_outcome": true,
+      "channel_intervention": {
+        "type": "artifact_replacement",
+        "target_id": "art_33a2855426d07bf6",
+        "replay_success": true,
+        "A_present": false,
+        "B_present": true,
+        "failure": false,
+        "CEE": 1.0,
+        "affected_evidence": 1,
+        "preserved_evidence": 1,
+        "collateral": 0
+      },
+      "source_event_intervention": {
+        "type": "tool_result_override",
+        "target_id": "evt_c8391fadf7a4ec96",
+        "replay_success": true,
+        "A_present": false,
+        "B_present": false,
+        "failure": false,
+        "CEE": 1.0,
+        "affected_evidence": 2,
+        "preserved_evidence": 0,
+        "collateral": 1
+      },
+      "granularity_metrics": {
+        "channel_collateral_rate": 0.0,
+        "source_event_collateral_rate": 1.0,
+        "unrelated_preservation_channel": 1.0,
+        "unrelated_preservation_source": 0.0,
+        "channel_more_selective": true,
+        "scope_channel": 1,
+        "scope_source_event": 2
+      }
+    },
+    {
+      "family": "BF-G",
+      "seed": 1024,
+      "instance_id": "bf_g_1024",
+      "factual_outcome": true,
+      "channel_intervention": {
+        "type": "artifact_replacement",
+        "target_id": "art_81572814f5046d9b",
+        "replay_success": true,
+        "A_present": false,
+        "B_present": true,
+        "failure": false,
+        "CEE": 1.0,
+        "affected_evidence": 1,
+        "preserved_evidence": 1,
+        "collateral": 0
+      },
+      "source_event_intervention": {
+        "type": "tool_result_override",
+        "target_id": "evt_fda66ddf66641c2b",
+        "replay_success": true,
+        "A_present": false,
+        "B_present": false,
+        "failure": false,
+        "CEE": 1.0,
+        "affected_evidence": 2,
+        "preserved_evidence": 0,
+        "collateral": 1
+      },
+      "granularity_metrics": {
+        "channel_collateral_rate": 0.0,
+        "source_event_collateral_rate": 1.0,
+        "unrelated_preservation_channel": 1.0,
+        "unrelated_preservation_source": 0.0,
+        "channel_more_selective": true,
+        "scope_channel": 1,
+        "scope_source_event": 2
+      }
+    }
+  ],
+  "pathway_stress_results": [],
+  "cascade_results": {},
+  "negative_control_results": [
+    {
+      "family": "BF-A",
+      "control_type": "irrelevant_channel_block",
+      "seed": 42,
+      "expected_effect": "CEE=0 (irrelevant channel)",
+      "justification": "Blocking echo tool should not prevent calculator-caused failure",
+      "observed_cee": 0.0,
+      "observed_outcome": true,
+      "passed": true
+    },
+    {
+      "family": "BF-G",
+      "control_type": "non_causal_artifact_block",
+      "seed": 42,
+      "expected_effect": "CEE=0 (benign artifact B)",
+      "justification": "Blocking artifact B ('ok') should not prevent failure from artifact A ('42')",
+      "observed_cee": 0.0,
+      "observed_outcome": true,
+      "passed": true
+    },
+    {
+      "family": "BF-A",
+      "control_type": "irrelevant_channel_block",
+      "seed": 123,
+      "expected_effect": "CEE=0 (irrelevant channel)",
+      "justification": "Blocking echo tool should not prevent calculator-caused failure",
+      "observed_cee": 0.0,
+      "observed_outcome": true,
+      "passed": true
+    },
+    {
+      "family": "BF-G",
+      "control_type": "non_causal_artifact_block",
+      "seed": 123,
+      "expected_effect": "CEE=0 (benign artifact B)",
+      "justification": "Blocking artifact B ('ok') should not prevent failure from artifact A ('42')",
+      "observed_cee": 0.0,
+      "observed_outcome": true,
+      "passed": true
+    }
+  ],
+  "convergence_results": {
+    "convergence": [
+      {
+        "replay_count": 1,
+        "cee": 1.0,
+        "ci_lower": 1.0,
+        "ci_upper": 1.0,
+        "ci_width": 0.0,
+        "n_valid": 1
+      },
+      {
+        "replay_count": 3,
+        "cee": 1.0,
+        "ci_lower": 1.0,
+        "ci_upper": 1.0,
+        "ci_width": 0.0,
+        "n_valid": 3
+      },
+      {
+        "replay_count": 5,
+        "cee": 1.0,
+        "ci_lower": 1.0,
+        "ci_upper": 1.0,
+        "ci_width": 0.0,
+        "n_valid": 5
+      },
+      {
+        "replay_count": 10,
+        "cee": 1.0,
+        "ci_lower": 1.0,
+        "ci_upper": 1.0,
+        "ci_width": 0.0,
+        "n_valid": 10
+      },
+      {
+        "replay_count": 20,
+        "cee": 1.0,
+        "ci_lower": 1.0,
+        "ci_upper": 1.0,
+        "ci_width": 0.0,
+        "n_valid": 20
+      },
+      {
+        "replay_count": 50,
+        "cee": 1.0,
+        "ci_lower": 1.0,
+        "ci_upper": 1.0,
+        "ci_width": 0.0,
+        "n_valid": 50
+      }
+    ],
+    "seed": 42
+  },
+  "scalability_results": {
+    "scalability": [
+      {
+        "family": "BF-A",
+        "runtime_s": 0.0026,
+        "n_method_results": 1
+      },
+      {
+        "family": "BF-E",
+        "runtime_s": 0.0019,
+        "n_method_results": 1
+      },
+      {
+        "family": "BF-H",
+        "runtime_s": 0.0038,
+        "n_method_results": 1
+      },
+      {
+        "family": "BF-J",
+        "runtime_s": 0.0029,
+        "n_method_results": 1
+      }
+    ],
+    "seed": 42
+  },
+  "cost_utility_results": []
+}

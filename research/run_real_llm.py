@@ -1,19 +1,4 @@
-"""Stage 2 Real-LLM Validation Experiment.
-
-Uses Gemini API to validate CELA's evidence-flow intervention mechanism
-with an actual LLM rather than MockLLM.
-
-CRITICAL RULES:
-- Do NOT force the LLM to react to an intervention.
-- Do NOT use _propagate_tool_overrides() or any simulator substitution.
-- The actual LLM receives the actual modified evidence/environment.
-- If the model ignores the intervention and CEE~0, record it.
-- Do NOT modify prompts/evaluator after observing results.
-- If Gemini validation fails technically, document the exact failure.
-
-Records: provider, model/version, temperature, tool definitions,
-task/scenario, factual/counterfactual protocol, repeated trials,
-failures/exclusions, runtime.
+"""Controlled real-LLM intervention sanity check using Gemini API. Tests whether an LLM's output changes when given modified evidence (simulating the effect of channel intervention), vs a baseline where original evidence is present. This is NOT a full end-to-end CAPTAIN counterfactual replay. It validates the core premise that LLM outputs depend on evidence content.
 """
 
 from __future__ import annotations
@@ -27,36 +12,8 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from captain.adapters.gemini import GeminiProvider
-from captain.agent.agent import Agent
-from captain.agent.tools import FixedValueTool, ToolRegistry
-from captain.agent.types import TaskInput
-from captain.analysis.estimator import channel_to_intervention
-from captain.benchmarks.scenarios import (
-    BenchmarkScenario,
-    ScenarioGroundTruth,
-    CausalMechanismSpec,
-    CausalMechanism,
-    _build_graph,
-    _build_keyword_evaluator,
-    _get_tool_channel_interventions,
-)
-from captain.evidence.graph import EvidenceFlowGraph
-from captain.evidence.lineage import EvidenceLineageBuilder
-from captain.failures.analyzer import FailureAnalyzer
-from captain.failures.model import (
-    ChannelIntervention,
-    Failure,
-    FailureType,
-)
-from captain.intervention.model import (
-    Intervention,
-    InterventionSet,
-    InterventionType,
-)
 from captain.models.execution import ExecutionRun
 from captain.models.ids import deterministic_ids
-from captain.replay.engine import CounterfactualReplayEngine, ReplayStatus
-from captain.tracing.traced_agent import TracedAgent
 
 
 class RealLLMTrialResult(BaseModel):
@@ -129,10 +86,7 @@ def run_real_llm_validation(
         started_at=datetime.now(timezone.utc).isoformat(),
         task="Compute a value using calculator tool and report the result",
         scenario_description=(
-            "Simple single-channel scenario (BF-A analogue). "
-            "Calculator tool returns '42' (failure keyword). "
-            "LLM must reason about the result. "
-            "Tests whether channel intervention changes LLM output."
+            "Controlled sanity check: sends handcrafted prompts with/without failure keyword to test LLM sensitivity to evidence modification. Does NOT run CAPTAIN agent, evidence graph, or replay engine."
         ),
         tool_definitions=["calculator: returns a computed value"],
         n_trials=n_trials,

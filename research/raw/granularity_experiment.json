@@ -1,0 +1,197 @@
+[
+  {
+    "family": "BF-G",
+    "seed": 42,
+    "instance_id": "bf_g_42",
+    "factual_outcome": true,
+    "channel_intervention": {
+      "type": "artifact_replacement",
+      "target_id": "art_a792e50efa8a0013",
+      "replay_success": true,
+      "A_present": false,
+      "B_present": true,
+      "failure": false,
+      "CEE": 1.0,
+      "affected_evidence": 1,
+      "preserved_evidence": 1,
+      "collateral": 0
+    },
+    "source_event_intervention": {
+      "type": "tool_result_override",
+      "target_id": "evt_c87340c40e927f63",
+      "replay_success": true,
+      "A_present": false,
+      "B_present": false,
+      "failure": false,
+      "CEE": 1.0,
+      "affected_evidence": 2,
+      "preserved_evidence": 0,
+      "collateral": 1
+    },
+    "granularity_metrics": {
+      "channel_collateral_rate": 0.0,
+      "source_event_collateral_rate": 1.0,
+      "unrelated_preservation_channel": 1.0,
+      "unrelated_preservation_source": 0.0,
+      "channel_more_selective": true,
+      "scope_channel": 1,
+      "scope_source_event": 2
+    }
+  },
+  {
+    "family": "BF-G",
+    "seed": 123,
+    "instance_id": "bf_g_123",
+    "factual_outcome": true,
+    "channel_intervention": {
+      "type": "artifact_replacement",
+      "target_id": "art_41e3b62d8545bc90",
+      "replay_success": true,
+      "A_present": false,
+      "B_present": true,
+      "failure": false,
+      "CEE": 1.0,
+      "affected_evidence": 1,
+      "preserved_evidence": 1,
+      "collateral": 0
+    },
+    "source_event_intervention": {
+      "type": "tool_result_override",
+      "target_id": "evt_4856587897bcb2a2",
+      "replay_success": true,
+      "A_present": false,
+      "B_present": false,
+      "failure": false,
+      "CEE": 1.0,
+      "affected_evidence": 2,
+      "preserved_evidence": 0,
+      "collateral": 1
+    },
+    "granularity_metrics": {
+      "channel_collateral_rate": 0.0,
+      "source_event_collateral_rate": 1.0,
+      "unrelated_preservation_channel": 1.0,
+      "unrelated_preservation_source": 0.0,
+      "channel_more_selective": true,
+      "scope_channel": 1,
+      "scope_source_event": 2
+    }
+  },
+  {
+    "family": "BF-G",
+    "seed": 456,
+    "instance_id": "bf_g_456",
+    "factual_outcome": true,
+    "channel_intervention": {
+      "type": "artifact_replacement",
+      "target_id": "art_67bfc39e473efb9d",
+      "replay_success": true,
+      "A_present": false,
+      "B_present": true,
+      "failure": false,
+      "CEE": 1.0,
+      "affected_evidence": 1,
+      "preserved_evidence": 1,
+      "collateral": 0
+    },
+    "source_event_intervention": {
+      "type": "tool_result_override",
+      "target_id": "evt_5bb15e0bb9713b48",
+      "replay_success": true,
+      "A_present": false,
+      "B_present": false,
+      "failure": false,
+      "CEE": 1.0,
+      "affected_evidence": 2,
+      "preserved_evidence": 0,
+      "collateral": 1
+    },
+    "granularity_metrics": {
+      "channel_collateral_rate": 0.0,
+      "source_event_collateral_rate": 1.0,
+      "unrelated_preservation_channel": 1.0,
+      "unrelated_preservation_source": 0.0,
+      "channel_more_selective": true,
+      "scope_channel": 1,
+      "scope_source_event": 2
+    }
+  },
+  {
+    "family": "BF-G",
+    "seed": 789,
+    "instance_id": "bf_g_789",
+    "factual_outcome": true,
+    "channel_intervention": {
+      "type": "artifact_replacement",
+      "target_id": "art_33a2855426d07bf6",
+      "replay_success": true,
+      "A_present": false,
+      "B_present": true,
+      "failure": false,
+      "CEE": 1.0,
+      "affected_evidence": 1,
+      "preserved_evidence": 1,
+      "collateral": 0
+    },
+    "source_event_intervention": {
+      "type": "tool_result_override",
+      "target_id": "evt_c8391fadf7a4ec96",
+      "replay_success": true,
+      "A_present": false,
+      "B_present": false,
+      "failure": false,
+      "CEE": 1.0,
+      "affected_evidence": 2,
+      "preserved_evidence": 0,
+      "collateral": 1
+    },
+    "granularity_metrics": {
+      "channel_collateral_rate": 0.0,
+      "source_event_collateral_rate": 1.0,
+      "unrelated_preservation_channel": 1.0,
+      "unrelated_preservation_source": 0.0,
+      "channel_more_selective": true,
+      "scope_channel": 1,
+      "scope_source_event": 2
+    }
+  },
+  {
+    "family": "BF-G",
+    "seed": 1024,
+    "instance_id": "bf_g_1024",
+    "factual_outcome": true,
+    "channel_intervention": {
+      "type": "artifact_replacement",
+      "target_id": "art_81572814f5046d9b",
+      "replay_success": true,
+      "A_present": false,
+      "B_present": true,
+      "failure": false,
+      "CEE": 1.0,
+      "affected_evidence": 1,
+      "preserved_evidence": 1,
+      "collateral": 0
+    },
+    "source_event_intervention": {
+      "type": "tool_result_override",
+      "target_id": "evt_fda66ddf66641c2b",
+      "replay_success": true,
+      "A_present": false,
+      "B_present": false,
+      "failure": false,
+      "CEE": 1.0,
+      "affected_evidence": 2,
+      "preserved_evidence": 0,
+      "collateral": 1
+    },
+    "granularity_metrics": {
+      "channel_collateral_rate": 0.0,
+      "source_event_collateral_rate": 1.0,
+      "unrelated_preservation_channel": 1.0,
+      "unrelated_preservation_source": 0.0,
+      "channel_more_selective": true,
+      "scope_channel": 1,
+      "scope_source_event": 2
+    }
+  }
+]
