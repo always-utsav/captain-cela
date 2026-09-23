@@ -1,12 +1,13 @@
 # CAPTAIN -- Current State
 
-**Stage**: 18 (COMPLETE -- FINAL)
+**Implementation Stage**: 18 (COMPLETE -- FINAL)
 
-**Status**: IMPLEMENTATION COMPLETE
+**Research Stage 2**: COMPLETE -- FROZEN FOR PAPER WRITING
 
 All 18 planned implementation stages are complete.
+Research Stage 2 experimental campaign executed, audited, and frozen.
 
-## Completed
+## Implementation Stages (Historical)
 
 - Stages 0-10: Infrastructure (tracing, agent, tools, graph, replay)
 - Stage 11: Research lock (CELA definition frozen)
@@ -15,12 +16,28 @@ All 18 planned implementation stages are complete.
 - Stage 17: Statistical validation & experiment runner
 - Stage 18: Final integration, demo, reproducibility
 
+## Research Stage 2 (Scientific Campaign)
+
+- 275 scenarios across 11 benchmark families, 5 seeds
+- Primary experiment: channel vs source-event intervention granularity
+- Real-LLM sanity check (Gemini 3.6-flash)
+- Final scientific closure audit completed
+- See `research_stage2/26_FINAL_SCIENTIFIC_FREEZE.md`
+
 ## Verification
 
-- 644 tests passing
+- 682 tests passing
 - ruff check: clean
-- mypy captain: success
-- ruff format: all formatted
+- mypy captain: clean
+- No API keys in repository
+
+## Key Commits
+
+```
+50d13cc  Final scientific closure
+d5b4a24  Stage 2 campaign
+98e6366  Stage 1.1-B baseline
+```
 
 ## Commands
 
@@ -28,12 +45,12 @@ All 18 planned implementation stages are complete.
 # One-command demo
 python -m captain.demo
 
-# Launch Explorer
+# Launch Explorer (includes /research endpoint)
 python -m captain.explorer
 
 # Run tests
 python -m pytest tests/ -q
 
-# Run benchmark experiment
-python -c "from captain.experiments import ExperimentRunner, ExperimentConfig; r=ExperimentRunner(ExperimentConfig()); print(r.run().metadata)"
+# Regenerate campaign results (deterministic)
+python research/run_campaign.py
 ```

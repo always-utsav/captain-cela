@@ -1,5 +1,64 @@
 # CAPTAIN -- Changelog
 
+## 2026-09-22 -- Final Scientific Closure
+
+### Corrected
+
+- Manifest commit SHA: 98e6366 → d5b4a24
+- claims.py: "t-test" → permutation/Wilcoxon (actual tests used)
+- claims.py: validate() rewritten to correctly parse actual data formats
+- claims.py: C3 correctly reports not_supported (p=0.1156)
+- BF-F: keyword_logic any→all (ground truth was self-contradictory)
+- BF-H: relabeled from "branching" to "convergent with mixed inputs"
+- BF-J: relabeled from "root vs symptom" to "parallel independent sources"
+- BF-K: relabeled from "downstream repair" to "downstream persistence"
+- run_real_llm.py: removed unused imports, relabeled as sanity check
+- research.html: removed "proving causality" and "proves" language
+- README.md: test count (682), limitations, research status
+- .gitignore: un-ignored research/raw/ for reproducibility
+
+### Added
+
+- research_stage2/00_FINAL_CLOSURE_AUDIT.md
+- research_stage2/25_REPRODUCIBILITY_FREEZE.md
+- research_stage2/26_FINAL_SCIENTIFIC_FREEZE.md
+- All raw result JSON files now committed to repository
+
+### Verification
+
+- 682 tests passed
+- ruff check: clean
+- mypy captain: clean
+- No API keys in repository
+
+---
+
+## 2026-09-08 -- Research Stage 2: Experimental Campaign
+
+### Added
+
+- 4 new benchmark families: BF-H (branching), BF-I (convergent),
+  BF-J (root vs symptom), BF-K (downstream repair)
+- captain/experiments/campaign.py -- full campaign orchestrator
+- captain/experiments/claims.py -- structured claim registry
+- captain/experiments/figures.py -- paper-quality figure generation
+- captain/adapters/gemini.py -- Gemini LLM provider
+- captain/explorer/templates/research.html -- 5-tab research website
+- 275 scenarios across 11 families, 5 seeds, 10 methods
+- Primary granularity experiment (channel vs source-event)
+- Negative controls, replay convergence, scalability experiments
+- Real-LLM sanity check with Gemini 3.6-flash
+- 24 research documents in research_stage2/
+- 7 paper-quality figures (SVG + PNG)
+
+### Verification
+
+- 682 tests passed
+- ruff check: clean
+- mypy captain: clean
+
+---
+
 ## 2026-09-01 -- Stage 18: Final Integrated CELA Demonstration + Reproducibility
 
 ### Added
