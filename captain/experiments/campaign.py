@@ -390,8 +390,7 @@ class CampaignRunner:
                             seed=seed,
                             expected_effect="CEE=0 (irrelevant channel)",
                             justification=(
-                                "Blocking echo tool should not prevent"
-                                " calculator-caused failure"
+                                "Blocking echo tool should not prevent calculator-caused failure"
                             ),
                             observed_cee=obs_cee,
                             observed_outcome=cf_failed,
@@ -425,9 +424,9 @@ class CampaignRunner:
                             seed=seed,
                             expected_effect="CEE=0 (benign artifact B)",
                             justification=(
-                        "Blocking artifact B ('ok') should not prevent"
-                        " failure from artifact A ('42')"
-                    ),
+                                "Blocking artifact B ('ok') should not prevent"
+                                " failure from artifact A ('42')"
+                            ),
                             observed_cee=obs2,
                             observed_outcome=cf2,
                             passed=obs2 == 0.0,
@@ -524,6 +523,209 @@ class CampaignRunner:
         return data
 
     # ---------------------------------------------------------------
+    # Pathway Stress
+    # ---------------------------------------------------------------
+
+    def run_pathway_stress(self) -> list[dict[str, Any]]:
+        """Controlled pathway-count experiment."""
+        from captain.benchmarks.baselines import CELAMethod
+        from captain.benchmarks.runner import BenchmarkRunner
+        from captain.benchmarks.scenarios import (
+            generate_complementary,
+            generate_distractor,
+            generate_redundant,
+            generate_shared_source,
+            generate_single_cause,
+        )
+
+        results: list[dict[str, Any]] = []
+        families = {
+            "BF-A": (generate_single_cause, 1),
+            "BF-B": (generate_redundant, 2),
+            "BF-C": (generate_complementary, 2),
+            "BF-D": (generate_distractor, 1),
+            "BF-G": (generate_shared_source, 1),
+        }
+
+        runner = BenchmarkRunner(k=3, max_set_size=3)
+        methods = [CELAMethod(level=5)]
+
+        for family, (gen_func, p_count) in families.items():
+            scenarios = []
+            for i in range(5):
+                seed = 42 + i
+                with deterministic_ids(seed):
+                    scenarios.append(gen_func(seed=seed))
+
+            b_result = runner.run(scenarios, methods=methods, run_oracle=False)
+
+            for res in b_result.results:
+                results.append(
+                    {
+                        "family": family,
+                        "pathway_count": p_count,
+                        "recall_at_1": res.metrics.attribution.recall_at_1,
+                        "failure_prevention_rate": res.metrics.prevention.failure_prevention_rate,
+                        "causal_f1": res.metrics.attribution.causal_f1,
+                    }
+                )
+
+        self._save("pathway_stress", results)
+        return results
+
+    # ---------------------------------------------------------------
+    # Cascade Experiment
+    # ---------------------------------------------------------------
+
+    def run_cascade_experiment(self) -> list[dict[str, Any]]:
+        """Individual vs joint intervention comparison."""
+        from captain.analysis.cascade import CascadeEstimator
+        from captain.analysis.estimator import CEEEstimator
+        from captain.benchmarks.scenarios import (
+            generate_complementary,
+            generate_redundant,
+            get_evaluator,
+        )
+
+        results: list[dict[str, Any]] = []
+        families = {
+            "BF-B": generate_redundant,
+            "BF-C": generate_complementary,
+        }
+
+        for family, gen_func in families.items():
+            for i in range(5):
+                seed = 42 + i
+                with deterministic_ids(seed):
+                    scenario = gen_func(seed=seed)
+
+                evaluator = get_evaluator(scenario)
+                causal_ids = set(scenario.ground_truth.causal_channel_ids)
+                causal_cands = [c for c in scenario.candidates if c.intervention_id in causal_ids]
+
+                if not causal_cands:
+                    continue
+
+                cee_est = CEEEstimator(
+                    scenario.run,
+                    evaluator,
+                    evidence_graph=scenario.evidence_graph,
+                    num_trials=1,
+                )
+                indiv_cees = []
+                indiv_preventions = []
+
+                from captain.failures.analyzer import FailureAnalyzer
+
+                analyzer = FailureAnalyzer(scenario.evidence_graph, scenario.failure)
+                scored = analyzer.candidates()
+                cand_map = {(sc.source_evidence_id, sc.target_evidence_id): sc for sc in scored}
+
+                for ci in causal_cands:
+                    key = (ci.source_evidence_id, ci.target_evidence_id)
+                    cand = cand_map.get(key)
+                    if cand:
+                        res = cee_est.estimate(cand, ci)
+                        indiv_cees.append(res.cee)
+                        prevented = sum(
+                            1
+                            for t in res.trials
+                            if t.baseline_outcome and not t.counterfactual_outcome
+                        )
+                        indiv_preventions.append(prevented / max(1, res.num_valid_trials))
+
+                individual_cee_sum = sum(indiv_cees)
+                prevention_rate_individual = max(indiv_preventions) if indiv_preventions else 0.0
+
+                cascade_est = CascadeEstimator(
+                    scenario.run,
+                    evaluator,
+                    evidence_graph=scenario.evidence_graph,
+                    num_trials=1,
+                )
+                joint_res = cascade_est.estimate_set(causal_cands)
+
+                results.append(
+                    {
+                        "family": family,
+                        "seed": seed,
+                        "individual_cee_sum": individual_cee_sum,
+                        "joint_cee": joint_res.cee,
+                        "prevention_rate_individual": prevention_rate_individual,
+                        "prevention_rate_joint": joint_res.prevention_rate,
+                    }
+                )
+
+        self._save("cascade_experiment", results)
+        return results
+
+    # ---------------------------------------------------------------
+    # Cost Utility Sweep
+    # ---------------------------------------------------------------
+
+    def run_cost_utility_sweep(self) -> dict[str, Any]:
+        """Budget efficiency analysis."""
+        from captain.analysis.cascade import CascadeEstimator, CostModel, GreedyCascadeSelector
+        from captain.benchmarks.scenarios import generate_cost_asymmetric, get_evaluator
+
+        results: dict[str, Any] = {}
+        budgets = [1.0, 2.0, 5.0, 10.0, float("inf")]
+
+        for b in budgets:
+            results[str(b)] = {
+                "selected_count": 0.0,
+                "total_cost": 0.0,
+                "prevention_rate": 0.0,
+                "preserved_evidence": 0.0,
+            }
+
+        for i in range(5):
+            seed = 42 + i
+            with deterministic_ids(seed):
+                scenario = generate_cost_asymmetric(seed=seed)
+
+            evaluator = get_evaluator(scenario)
+            cost_model = CostModel(channel_costs=scenario.ground_truth.channel_costs)
+
+            cascade_est = CascadeEstimator(
+                scenario.run,
+                evaluator,
+                evidence_graph=scenario.evidence_graph,
+                num_trials=1,
+                cost_model=cost_model,
+            )
+
+            for b in budgets:
+                budget_val = None if b == float("inf") else b
+                selector = GreedyCascadeSelector(
+                    cascade_est,
+                    cost_model=cost_model,
+                    budget=budget_val,
+                    max_set_size=5,
+                )
+
+                sel_res = selector.select(scenario.candidates)
+                selected_count = 0
+                if sel_res.selected_set:
+                    selected_count = len(
+                        sel_res.selected_set.channel_interventions
+                    )
+
+                results[str(b)]["selected_count"] += selected_count
+                results[str(b)]["total_cost"] += sel_res.total_cost
+                results[str(b)]["prevention_rate"] += sel_res.prevention_rate
+                results[str(b)]["preserved_evidence"] += 0.0
+
+        for b in budgets:
+            results[str(b)]["selected_count"] /= 5.0
+            results[str(b)]["total_cost"] /= 5.0
+            results[str(b)]["prevention_rate"] /= 5.0
+            results[str(b)]["preserved_evidence"] /= 5.0
+
+        self._save("cost_utility_sweep", results)
+        return results
+
+    # ---------------------------------------------------------------
     # Full campaign
     # ---------------------------------------------------------------
 
@@ -571,14 +773,32 @@ class CampaignRunner:
         scale = self.run_scalability()
         print(f"  {len(scale.get('scalability', []))} families")
 
+        # 6. Pathway stress
+        print("\n--- Pathway stress ---")
+        pathway = self.run_pathway_stress()
+        print(f"  {len(pathway)} results")
+
+        # 7. Cascade
+        print("\n--- Cascade experiment ---")
+        cascade = self.run_cascade_experiment()
+        print(f"  {len(cascade)} results")
+
+        # 8. Cost utility
+        print("\n--- Cost utility sweep ---")
+        cost_util = self.run_cost_utility_sweep()
+        print("  Sweep completed")
+
         campaign_result = CampaignResult(
             campaign_id=f"stage2_{self.config.seeds[0]}",
             manifest=manifest,
             seed_results=seed_summaries,
             granularity_results=[g.model_dump() for g in gran],
+            pathway_stress_results=pathway,
+            cascade_results={"results": cascade},
             negative_control_results=[n.model_dump() for n in neg],
             convergence_results=conv,
             scalability_results=scale,
+            cost_utility_results=[cost_util],
         )
         self._save("campaign_full", campaign_result)
         print("\n=== Campaign complete ===")

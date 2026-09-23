@@ -19,6 +19,13 @@ The research method developed on CAPTAIN is **CELA — Counterfactual Evidence-L
 - Reproducible experiment workflow
 - Real-LLM sanity validation (Gemini)
 
+## Documentation
+
+The complete research documentation and project maps are available in the `documentation/` directory.
+
+- [📚 Master Documentation Index](documentation/README.md)
+- [🗺️ Project Map](documentation/PROJECT_MAP.md)
+
 ## Quick Start
 
 ### Install

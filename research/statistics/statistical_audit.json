@@ -1,0 +1,111 @@
+{
+  "audit_type": "statistical_pipeline",
+  "total_checks": 17,
+  "correct": 14,
+  "limited": 2,
+  "acceptable": 1,
+  "findings": [
+    {
+      "check": "unit_of_analysis",
+      "expected": "scenario instance",
+      "actual": "scenario instance (paired by scenario ID)",
+      "status": "CORRECT"
+    },
+    {
+      "check": "independence_assumption",
+      "expected": "instances within same seed are independent",
+      "actual": "generated with deterministic_ids(seed) but different scenario params",
+      "status": "ACCEPTABLE \u2014 instances are structurally independent but share the same seed for reproducibility"
+    },
+    {
+      "check": "paired_comparison",
+      "expected": "same scenario instance compared across methods",
+      "actual": "ExperimentRunner evaluates all methods on same scenario",
+      "status": "CORRECT"
+    },
+    {
+      "check": "bootstrap_ci",
+      "expected": "percentile method, 2000 resamples, alpha=0.05",
+      "actual": "implemented in statistics.py bootstrap_ci()",
+      "status": "CORRECT"
+    },
+    {
+      "check": "permutation_test",
+      "expected": "exact or Monte-Carlo permutation",
+      "actual": "exact when <=3 unique values, Monte-Carlo otherwise",
+      "status": "CORRECT"
+    },
+    {
+      "check": "wilcoxon_signed_rank",
+      "expected": "paired signed-rank test",
+      "actual": "implemented in statistics.py",
+      "status": "CORRECT \u2014 stdlib-only implementation"
+    },
+    {
+      "check": "multiple_testing_correction",
+      "expected": "Holm-Bonferroni",
+      "actual": "holm_bonferroni() in statistics.py",
+      "status": "CORRECT"
+    },
+    {
+      "check": "effect_size",
+      "expected": "Cohen's d (paired)",
+      "actual": "computed in paired_comparison()",
+      "status": "CORRECT"
+    },
+    {
+      "check": "sample_size",
+      "expected": "sufficient for non-parametric tests",
+      "actual": "5 instances/family/seed, 5 seeds, 25 total per family",
+      "status": "LIMITED \u2014 5 instances per seed is small; Wilcoxon requires n>=6 for significance at alpha=0.05"
+    },
+    {
+      "check": "statistical_power",
+      "expected": "adequate for large effects",
+      "actual": "not formally computed; small sample limits detection of medium/small effects",
+      "status": "LIMITED \u2014 C3 negative result may reflect insufficient power rather than true null"
+    },
+    {
+      "check": "seed_sensitivity",
+      "expected": "CV < 0.2 across seeds",
+      "actual": "C5 reports CV < 0.2 for main metrics",
+      "status": "CORRECT"
+    },
+    {
+      "check": "no_t_tests",
+      "expected": "no t-tests in codebase",
+      "actual": "verified \u2014 statistics.py has no t-test implementation",
+      "status": "CORRECT \u2014 t-test removed in scientific closure audit"
+    },
+    {
+      "check": "benchmark_seed_42_integrity",
+      "expected": "comparisons present",
+      "actual": "63 comparisons found",
+      "status": "CORRECT"
+    },
+    {
+      "check": "benchmark_seed_123_integrity",
+      "expected": "comparisons present",
+      "actual": "63 comparisons found",
+      "status": "CORRECT"
+    },
+    {
+      "check": "benchmark_seed_456_integrity",
+      "expected": "comparisons present",
+      "actual": "63 comparisons found",
+      "status": "CORRECT"
+    },
+    {
+      "check": "benchmark_seed_789_integrity",
+      "expected": "comparisons present",
+      "actual": "63 comparisons found",
+      "status": "CORRECT"
+    },
+    {
+      "check": "benchmark_seed_1024_integrity",
+      "expected": "comparisons present",
+      "actual": "63 comparisons found",
+      "status": "CORRECT"
+    }
+  ]
+}
